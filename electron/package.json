@@ -1,0 +1,144 @@
+{
+  "name": "kryzorapos-desktop",
+  "version": "2.0.0",
+  "main": "main.js",
+  "description": "Desktop wrapper for KryzoraPOS by Kryzora Solutions",
+  "author": "Kryzora Solutions",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "build": "electron-builder --win --x64",
+    "build:dir": "electron-builder --win --x64 --dir"
+  },
+  "build": {
+    "appId": "com.kryzora.pos",
+    "productName": "KryzoraPOS",
+    "copyright": "Copyright © 2026 Kryzora Solutions",
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico",
+      "signingHashAlgorithms": null,
+      "sign": null
+    },
+    "forceCodeSigning": false,
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "KryzoraPOS",
+      "runAfterFinish": true
+    },
+    "files": [
+      "main.js",
+      "package.json",
+      "assets/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../frontend/dist",
+        "to": "frontend/dist",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../backend",
+        "to": "backend",
+        "filter": [
+          "**/*",
+          "!.git/**",
+          "!.git",
+          "!.github/**",
+          "!.github",
+          "!node_modules/**",
+          "!tests/**",
+          "!storage/logs/*.log",
+          "!storage/framework/cache/data/**",
+          "!storage/framework/sessions/**",
+          "!storage/framework/views/**",
+          "!vendor/**/tests/**",
+          "!vendor/**/Tests/**",
+          "!vendor/**/test/**",
+          "!vendor/**/Test/**",
+          "!vendor/**/docs/**",
+          "!vendor/**/doc/**",
+          "!vendor/**/.git/**",
+          "!vendor/**/.github/**",
+          "!vendor/**/example/**",
+          "!vendor/**/examples/**",
+          "!vendor/**/CHANGELOG*",
+          "!vendor/**/CHANGELOG.md",
+          "!vendor/**/changelog.md",
+          "!vendor/**/UPGRADE*",
+          "!vendor/**/UPGRADING*",
+          "!vendor/**/README*",
+          "!vendor/**/readme*",
+          "!vendor/**/CONTRIBUTING*",
+          "!vendor/**/*.md",
+          "!vendor/**/.travis.yml",
+          "!vendor/**/.editorconfig",
+          "!vendor/**/.styleci.yml",
+          "!vendor/**/.php_cs*",
+          "!vendor/**/.gitattributes",
+          "!vendor/**/.gitignore",
+          "!vendor/**/phpunit.xml*",
+          "!vendor/**/phpstan*",
+          "!vendor/**/psalm*",
+          "!vendor/**/.scrutinizer.yml",
+          "!vendor/**/appveyor.yml",
+          "!vendor/**/Makefile",
+          "!vendor/**/SECURITY*",
+          "!vendor/**/CODE_OF_CONDUCT*",
+          "!vendor/**/LICENSE*",
+          "!vendor/**/license*",
+          "!vendor/bin/**",
+          "!*.lock",
+          "!package.json",
+          "!vite.config.js",
+          "!phpunit.xml",
+          "!.editorconfig",
+          "!.styleci.yml",
+          "!CHANGELOG.md",
+          "!README.md",
+          "!resources/js/**",
+          "!resources/css/**"
+        ]
+      },
+      {
+        "from": "php",
+        "to": "php",
+        "filter": [
+          "**/*",
+          "!dev/**",
+          "!extras/**",
+          "!lib/**",
+          "!*.lib",
+          "!phpdbg.exe",
+          "!php-cgi.exe",
+          "!php-win.exe",
+          "!deplister.exe",
+          "!php8embed.lib",
+          "!php8phpdbg.dll",
+          "!news.txt",
+          "!snapshot.txt",
+          "!readme-redist-bins.txt",
+          "!license.txt",
+          "!README.md",
+          "!php.ini-development",
+          "!php.ini-production",
+          "!phar.phar.bat",
+          "!pharcommand.phar"
+        ]
+      }
+    ],
+    "directories": {
+      "output": "dist"
+    }
+  },
+  "devDependencies": {
+    "electron": "^40.8.0",
+    "electron-builder": "^24.13.3"
+  }
+}

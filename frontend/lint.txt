@@ -1,0 +1,148 @@
+﻿
+> restaurant-pos-frontend@0.1.0 lint
+> eslint .
+
+
+D:\Kryzora POS\frontend\src\App.jsx
+   1:8  warning  'React' is defined but never used                                                                                  no-unused-vars
+  58:8  warning  React Hook useEffect has a missing dependency: 'refreshLicense'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\Kryzora POS\frontend\src\components\Layout.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+D:\Kryzora POS\frontend\src\components\Receipt.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+D:\Kryzora POS\frontend\src\context\AuthContext.jsx
+    1:8   warning  'React' is defined but never used                                                                                               no-unused-vars
+   19:26  warning  'e' is defined but never used                                                                                                   no-unused-vars
+  124:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\Kryzora POS\frontend\src\pages\Attendance.jsx
+  1:8   warning  'React' is defined but never used     no-unused-vars
+  2:53  warning  'Calendar' is defined but never used  no-unused-vars
+
+D:\Kryzora POS\frontend\src\pages\Customers.jsx
+   1:8   warning  'React' is defined but never used  no-unused-vars
+   2:10  warning  'User' is defined but never used   no-unused-vars
+   2:16  warning  'Phone' is defined but never used  no-unused-vars
+   2:23  warning  'Mail' is defined but never used   no-unused-vars
+  85:18  warning  'error' is defined but never used  no-unused-vars
+
+D:\Kryzora POS\frontend\src\pages\DailyReport.jsx
+   1:8   warning  'React' is defined but never used                                                                               no-unused-vars
+   5:56  warning  'Download' is defined but never used                                                                            no-unused-vars
+  15:8   warning  React Hook useEffect has a missing dependency: 'fetchReport'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\Kryzora POS\frontend\src\pages\Dashboard.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+D:\Kryzora POS\frontend\src\pages\Expenses.jsx
+   1:8   warning  'React' is defined but never used                                                                             no-unused-vars
+   2:48  warning  'Filter' is defined but never used                                                                            no-unused-vars
+  48:8   warning  React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  70:18  warning  'error' is defined but never used                                                                             no-unused-vars
+
+D:\Kryzora POS\frontend\src\pages\Inventory.jsx
+   1:8   warning  'React' is defined but never used           no-unused-vars
+   2:48  warning  'ArrowDownRight' is defined but never used  no-unused-vars
+  78:18  warning  'error' is defined but never used           no-unused-vars
+
+D:\Kryzora POS\frontend\src\pages\Kitchen.jsx
+   1:8   warning  'React' is defined but never used                                                                                      no-unused-vars
+   2:31  warning  'ChevronRight' is defined but never used                                                                               no-unused-vars
+   2:45  warning  'Loader2' is defined but never used                                                                                    no-unused-vars
+  17:40  warning  'e' is defined but never used                                                                                          no-unused-vars
+  32:8   warning  React Hook useEffect has a missing dependency: 'fetchKitchenOrders'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\Kryzora POS\frontend\src\pages\LicenseActivation.jsx
+   1:8  warning  'React' is defined but never used                                                                                no-unused-vars
+  28:8  warning  React Hook useEffect has a missing dependency: 'checkLicense'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\Kryzora POS\frontend\src\pages\Login.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+D:\Kryzora POS\frontend\src\pages\MenuSetup.jsx
+    1:8   warning  'React' is defined but never used                                                                             no-unused-vars
+   63:18  warning  'error' is defined but never used                                                                             no-unused-vars
+   85:18  warning  'error' is defined but never used                                                                             no-unused-vars
+   98:13  error    'showToast' is not defined                                                                                    no-undef
+   99:18  warning  'error' is defined but never used                                                                             no-unused-vars
+  136:8   warning  React Hook useEffect has a missing dependency: 'fetchMenu'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  151:18  warning  'error' is defined but never used                                                                             no-unused-vars
+  188:18  warning  'error' is defined but never used                                                                             no-unused-vars
+  198:18  warning  'error' is defined but never used                                                                             no-unused-vars
+  208:18  warning  'error' is defined but never used                                                                             no-unused-vars
+  220:69  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`                                               react/no-unescaped-entities
+  265:46  error    'Package' is not defined                                                                                      react/jsx-no-undef
+
+D:\Kryzora POS\frontend\src\pages\OrderHistory.jsx
+  1:8   warning  'React' is defined but never used   no-unused-vars
+  2:18  warning  'Filter' is defined but never used  no-unused-vars
+  2:26  warning  'Eye' is defined but never used     no-unused-vars
+
+D:\Kryzora POS\frontend\src\pages\POS.jsx
+    1:8    warning  'React' is defined but never used                                                                             no-unused-vars
+    4:5    warning  'Utensils' is defined but never used                                                                          no-unused-vars
+    4:15   warning  'Users' is defined but never used                                                                             no-unused-vars
+    4:35   warning  'Search' is defined but never used                                                                            no-unused-vars
+    5:13   warning  'CreditCard' is defined but never used                                                                        no-unused-vars
+    5:25   warning  'Wallet' is defined but never used                                                                            no-unused-vars
+    6:5    warning  'MapPin' is defined but never used                                                                            no-unused-vars
+    6:13   warning  'Truck' is defined but never used                                                                             no-unused-vars
+    6:20   warning  'Table2' is defined but never used                                                                            no-unused-vars
+    6:28   warning  'Info' is defined but never used                                                                              no-unused-vars
+    6:34   warning  'Loader2' is defined but never used                                                                           no-unused-vars
+    6:43   warning  'Lock' is defined but never used                                                                              no-unused-vars
+    6:49   warning  'ShoppingCart' is defined but never used                                                                      no-unused-vars
+    6:63   warning  'Banknote' is defined but never used                                                                          no-unused-vars
+    6:82   warning  'Send' is defined but never used                                                                              no-unused-vars
+    6:91   warning  'QrCode' is defined but never used                                                                            no-unused-vars
+    6:99   warning  'CheckCircle2' is defined but never used                                                                      no-unused-vars
+    6:113  warning  'Edit3' is defined but never used                                                                             no-unused-vars
+  101:22   warning  'e' is defined but never used                                                                                 no-unused-vars
+  109:22   warning  'e' is defined but never used                                                                                 no-unused-vars
+  141:8    warning  React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\Kryzora POS\frontend\src\pages\PublicMenu.jsx
+   1:8   warning  'React' is defined but never used     no-unused-vars
+   2:24  warning  'Utensils' is defined but never used  no-unused-vars
+   2:34  warning  'Star' is defined but never used      no-unused-vars
+  54:18  warning  'err' is defined but never used       no-unused-vars
+
+D:\Kryzora POS\frontend\src\pages\Purchases.jsx
+  1:8   warning  'React' is defined but never used         no-unused-vars
+  2:10  warning  'ShoppingCart' is defined but never used  no-unused-vars
+  2:42  warning  'Calendar' is defined but never used      no-unused-vars
+  2:52  warning  'Package' is defined but never used       no-unused-vars
+  2:69  warning  'ArrowRight' is defined but never used    no-unused-vars
+
+D:\Kryzora POS\frontend\src\pages\Reports.jsx
+  1:8   warning  'React' is defined but never used      no-unused-vars
+  6:47  warning  'BarChart3' is defined but never used  no-unused-vars
+
+D:\Kryzora POS\frontend\src\pages\Settings.jsx
+   2:22  warning  'SettingsIcon' is defined but never used  no-unused-vars
+   2:70  warning  'Lock' is defined but never used          no-unused-vars
+  49:18  warning  'err' is defined but never used           no-unused-vars
+
+D:\Kryzora POS\frontend\src\pages\Shifts.jsx
+  1:8  warning  'React' is defined but never used  no-unused-vars
+
+D:\Kryzora POS\frontend\src\pages\Staff.jsx
+   1:8   warning  'React' is defined but never used  no-unused-vars
+   2:10  warning  'Users' is defined but never used  no-unused-vars
+  74:18  warning  'error' is defined but never used  no-unused-vars
+
+D:\Kryzora POS\frontend\src\pages\Suppliers.jsx
+   1:8   warning  'React' is defined but never used  no-unused-vars
+   2:10  warning  'Users' is defined but never used  no-unused-vars
+  35:18  warning  'error' is defined but never used  no-unused-vars
+  47:18  warning  'error' is defined but never used  no-unused-vars
+
+D:\Kryzora POS\frontend\src\pages\Tables.jsx
+   1:8   warning  'React' is defined but never used  no-unused-vars
+  45:18  warning  'error' is defined but never used  no-unused-vars
+
+Γ£û 93 problems (3 errors, 90 warnings)
+

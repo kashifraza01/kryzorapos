@@ -1,0 +1,27 @@
+# Root .gitignore
+node_modules/
+.DS_Store
+.env
+dist/
+build/
+
+# Backend
+backend/vendor/
+backend/.env
+backend/storage/*.key
+backend/public/storage
+backend/public/hot
+backend/public/mix-manifest.json
+backend/database/database.sqlite
+backend/backups/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
