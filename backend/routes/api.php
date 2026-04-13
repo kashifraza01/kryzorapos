@@ -97,6 +97,9 @@ Route::middleware(['auth:sanctum', 'license'])->group(function () {
         Route::get('/kitchen/orders', [KitchenController::class, 'index']);
         Route::post('/kitchen/orders/{id}/status', [KitchenController::class, 'updateStatus']);
     });
+    Route::get('/test', function () {
+        return response()->json(["msg" => "API OK"]);
+    });
 
     // Inventory
     Route::middleware('license:inventory')->group(function () {
