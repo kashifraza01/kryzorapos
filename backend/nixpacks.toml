@@ -1,13 +1,21 @@
+# Nixpacks configuration for Railway deployment
+# This runs from REPO ROOT — all commands must cd into backend/
+
+providers = []
+
 [phases.setup]
+nixPkgs = ["php83", "php83Extensions.pdo", "php83Extensions.pdo_pgsql", "php83Extensions.pgsql", "php83Extensions.mbstring", "php83Extensions.openssl", "php83Extensions.curl", "php83Extensions.fileinfo", "php83Extensions.tokenizer", "php83Extensions.xml", "php83Extensions.zip"]
 aptPkgs = ["libpq-dev"]
+
+[phases.install]
+cmds = ["cd backend && composer install --no-dev --optimize-autoloader --no-interaction"]
 
 [phases.build]
 cmds = [
-    "composer install --no-dev --optimize-autoloader",
-    "php artisan config:cache",
-    "php artisan route:cache",
-    "php artisan view:cache"
+    "cd backend && mkdir -p storage/framework/{sessions,views,cache}",
+    "cd backend && mkdir -p storage/logs",
+    "cd backend && mkdir -p bootstrap/cache"
 ]
 
 [start]
-cmd = "php artisan migrate --force && php artisan storage:link 2>/dev/null; php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
+cmd = "cd backend && bash start.sh"
