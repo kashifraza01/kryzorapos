@@ -13,13 +13,18 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <script>
-      // Unregister any old service workers that may be caching stale files
+      // CRITICAL: Kill old service worker cache that blocks new deploys
       if ('serviceWorker' in navigator) {
+        // Register the new self-destruct SW to replace the old caching one
+        navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+          .then(reg => { reg.update(); })
+          .catch(() => {});
+        // Also unregister everything
         navigator.serviceWorker.getRegistrations().then(regs => {
           for (let reg of regs) { reg.unregister(); }
         });
         // Clear all caches
-        if (caches) {
+        if (typeof caches !== 'undefined') {
           caches.keys().then(names => {
             names.forEach(name => caches.delete(name));
           });
