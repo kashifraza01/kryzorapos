@@ -62,7 +62,7 @@ export default function Login() {
                         {loading ? <Loader2 className="animate-spin" /> : 'Login to POS'}
                     </button>
                     <div className="text-center mt-4">
-                        <p className="text-xs text-muted" style={{ opacity: 0.7 }}>Default: <strong>admin@pos.com</strong> / <strong>admin123</strong></p>
+                        <p className="text-xs text-muted" style={{ opacity: 0.7 }}>Default: <strong>admin@kryzorapos.com</strong> / <strong>password</strong></p>
                     </div>
                 </form>
 

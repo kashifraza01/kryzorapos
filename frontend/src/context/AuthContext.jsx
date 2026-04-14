@@ -32,6 +32,24 @@ export function AuthProvider({ children }) {
             if (savedLicense) {
                 setLicense(JSON.parse(savedLicense));
             }
+
+            // If no cached license, fetch from server (critical for Cloud mode first visit)
+            if (!savedLicense) {
+                try {
+                    const res = await api.get('/auth/license/check');
+                    const licenseData = {
+                        is_active: res.data.valid || res.data.is_active,
+                        status: res.data.status,
+                        plan: res.data.plan,
+                        features: res.data.features || [],
+                        message: res.data.message,
+                    };
+                    localStorage.setItem('license', JSON.stringify(licenseData));
+                    setLicense(licenseData);
+                } catch (err) {
+                    console.error('License check on init failed:', err);
+                }
+            }
             setLoading(false);
         };
         initAuth();

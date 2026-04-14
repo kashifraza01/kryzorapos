@@ -1,1 +1,0 @@
-<?php $app_key='base64:wJMN5IwCn+IJKI+McNN0OrzUx8afeaz4XBE+quhloLs='; $plan='FULL'; $months=1200; $textToSign = "KRZ-{$plan}-{$months}"; $validSignature = substr(hash_hmac('sha256', $textToSign, $app_key), 0, 8); echo strtoupper("KRZ-{$plan}-{$months}-{$validSignature}"); ?>

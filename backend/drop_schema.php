@@ -1,1 +1,0 @@
-<?php $pdo = new PDO('pgsql:host=ep-soft-truth-angd73n8-pooler.c-6.us-east-1.aws.neon.tech;port=5432;dbname=neondb;sslmode=require', 'neondb_owner', 'npg_VQsekRq05SXg'); $pdo->exec('DROP SCHEMA public CASCADE; CREATE SCHEMA public;'); ?>
