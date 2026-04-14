@@ -2,11 +2,13 @@ import React, { useEffect, Suspense, lazy } from 'react'
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import Login from './pages/Login'
-import LicenseActivation from './pages/LicenseActivation'
 import { Loader2, Lock } from 'lucide-react';
 import { useAuth } from './context/AuthContext'
 
-// Lazy-loaded pages for code splitting (loaded on-demand)
+// Only import LicenseActivation for offline mode (lazy so it's not bundled in cloud)
+const LicenseActivation = lazy(() => import('./pages/LicenseActivation'))
+
+// Lazy-loaded pages
 const POS = lazy(() => import('./pages/POS'))
 const Tables = lazy(() => import('./pages/Tables'))
 const Inventory = lazy(() => import('./pages/Inventory'))
@@ -27,7 +29,7 @@ const DailyReport = lazy(() => import('./pages/DailyReport'))
 const PublicMenu = lazy(() => import('./pages/PublicMenu'))
 
 /**
- * Component that shows a "feature locked" message when the plan doesn't include a feature.
+ * Feature locked guard — checks subscription/license features.
  */
 function FeatureLocked({ feature, children }) {
     const { hasFeature } = useAuth();
@@ -50,13 +52,14 @@ function FeatureLocked({ feature, children }) {
 function App() {
     const { user, logout, loading: authLoading, license, refreshLicense, isCloudMode } = useAuth();
 
-    // Refresh license/subscription on mount (if logged in)
+    // Refresh subscription/license on mount (if logged in)
     useEffect(() => {
         if (user) {
             refreshLicense();
         }
     }, [user]);
 
+    // Loading spinner
     if (authLoading) {
         return (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#0f172a' }}>
@@ -66,36 +69,43 @@ function App() {
         );
     }
 
-    // =================================================================
-    // OFFLINE MODE ONLY: Show LicenseActivation if no valid license.
-    // CLOUD MODE: NEVER show LicenseActivation — go straight to Login.
-    // =================================================================
+    // ============================================================
+    // OFFLINE MODE ONLY: If no valid license → show LicenseActivation.
+    // CLOUD MODE: This block is COMPLETELY SKIPPED. Always go to Login.
+    // ============================================================
     if (!isCloudMode && !user && (!license || !license.is_active)) {
         return (
             <Router>
                 <Routes>
-                    <Route path="/menu" element={<PublicMenu />} />
+                    <Route path="/menu" element={<Suspense fallback={null}><PublicMenu /></Suspense>} />
                     <Route path="*" element={
-                        <LicenseActivation onActivated={(licData) => {
-                            localStorage.setItem('license', JSON.stringify({
-                                is_active: licData.valid || licData.is_active || true,
-                                status: licData.status || 'active',
-                                plan: licData.plan,
-                                features: licData.features || [],
-                                message: licData.message || 'License active',
-                            }));
-                            window.location.reload();
-                        }} />
+                        <Suspense fallback={null}>
+                            <LicenseActivation onActivated={(licData) => {
+                                localStorage.setItem('license', JSON.stringify({
+                                    is_active: licData.valid || licData.is_active || true,
+                                    status: licData.status || 'active',
+                                    plan: licData.plan,
+                                    features: licData.features || [],
+                                    message: licData.message || 'License active',
+                                }));
+                                window.location.reload();
+                            }} />
+                        </Suspense>
                     } />
                 </Routes>
             </Router>
         );
     }
 
+    // ============================================================
+    // MAIN APP — Both cloud and offline land here.
+    // Not logged in → Login screen.
+    // Logged in → Dashboard + Layout.
+    // ============================================================
     return (
         <Router>
             <Routes>
-                <Route path="/menu" element={<PublicMenu />} />
+                <Route path="/menu" element={<Suspense fallback={null}><PublicMenu /></Suspense>} />
                 <Route path="*" element={
                     !user ? (
                         <Login />
@@ -104,54 +114,22 @@ function App() {
                             <Suspense fallback={<div className="loading"><Loader2 className="animate-spin" size={32} /> Loading...</div>}>
                                 <Routes>
                                     <Route path="/" element={<Dashboard />} />
-                                    <Route path="/pos" element={
-                                        <FeatureLocked feature="pos"><POS /></FeatureLocked>
-                                    } />
-                                    <Route path="/tables" element={
-                                        <FeatureLocked feature="tables"><Tables /></FeatureLocked>
-                                    } />
-                                    <Route path="/inventory" element={
-                                        <FeatureLocked feature="inventory"><Inventory /></FeatureLocked>
-                                    } />
-                                    <Route path="/menu-setup" element={
-                                        <FeatureLocked feature="menu-setup"><MenuSetup /></FeatureLocked>
-                                    } />
-                                    <Route path="/customers" element={
-                                        <FeatureLocked feature="customers"><Customers /></FeatureLocked>
-                                    } />
-                                    <Route path="/reports" element={
-                                        <FeatureLocked feature="reports"><Reports /></FeatureLocked>
-                                    } />
-                                    <Route path="/staff" element={
-                                        <FeatureLocked feature="staff"><Staff /></FeatureLocked>
-                                    } />
-                                    <Route path="/attendance" element={
-                                        <FeatureLocked feature="attendance"><Attendance /></FeatureLocked>
-                                    } />
-                                    <Route path="/settings" element={
-                                        <FeatureLocked feature="settings"><Settings /></FeatureLocked>
-                                    } />
-                                    <Route path="/kitchen" element={
-                                        <FeatureLocked feature="kitchen"><Kitchen /></FeatureLocked>
-                                    } />
-                                    <Route path="/order-history" element={
-                                        <FeatureLocked feature="order-history"><OrderHistory /></FeatureLocked>
-                                    } />
-                                    <Route path="/expenses" element={
-                                        <FeatureLocked feature="expenses"><Expenses /></FeatureLocked>
-                                    } />
-                                    <Route path="/suppliers" element={
-                                        <FeatureLocked feature="suppliers"><Suppliers /></FeatureLocked>
-                                    } />
-                                    <Route path="/purchases" element={
-                                        <FeatureLocked feature="purchases"><Purchases /></FeatureLocked>
-                                    } />
-                                    <Route path="/shifts" element={
-                                        <FeatureLocked feature="pos"><Shifts /></FeatureLocked>
-                                    } />
-                                    <Route path="/daily-report" element={
-                                        <FeatureLocked feature="reports"><DailyReport /></FeatureLocked>
-                                    } />
+                                    <Route path="/pos" element={<FeatureLocked feature="pos"><POS /></FeatureLocked>} />
+                                    <Route path="/tables" element={<FeatureLocked feature="tables"><Tables /></FeatureLocked>} />
+                                    <Route path="/inventory" element={<FeatureLocked feature="inventory"><Inventory /></FeatureLocked>} />
+                                    <Route path="/menu-setup" element={<FeatureLocked feature="menu-setup"><MenuSetup /></FeatureLocked>} />
+                                    <Route path="/customers" element={<FeatureLocked feature="customers"><Customers /></FeatureLocked>} />
+                                    <Route path="/reports" element={<FeatureLocked feature="reports"><Reports /></FeatureLocked>} />
+                                    <Route path="/staff" element={<FeatureLocked feature="staff"><Staff /></FeatureLocked>} />
+                                    <Route path="/attendance" element={<FeatureLocked feature="attendance"><Attendance /></FeatureLocked>} />
+                                    <Route path="/settings" element={<FeatureLocked feature="settings"><Settings /></FeatureLocked>} />
+                                    <Route path="/kitchen" element={<FeatureLocked feature="kitchen"><Kitchen /></FeatureLocked>} />
+                                    <Route path="/order-history" element={<FeatureLocked feature="order-history"><OrderHistory /></FeatureLocked>} />
+                                    <Route path="/expenses" element={<FeatureLocked feature="expenses"><Expenses /></FeatureLocked>} />
+                                    <Route path="/suppliers" element={<FeatureLocked feature="suppliers"><Suppliers /></FeatureLocked>} />
+                                    <Route path="/purchases" element={<FeatureLocked feature="purchases"><Purchases /></FeatureLocked>} />
+                                    <Route path="/shifts" element={<FeatureLocked feature="pos"><Shifts /></FeatureLocked>} />
+                                    <Route path="/daily-report" element={<FeatureLocked feature="reports"><DailyReport /></FeatureLocked>} />
                                     <Route path="*" element={<Navigate to="/" />} />
                                 </Routes>
                             </Suspense>
