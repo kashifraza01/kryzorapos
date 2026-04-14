@@ -17,7 +17,11 @@ export default function Login() {
         try {
             await login(credentials);
         } catch (err) {
-            setError(err.response?.data?.message || 'Invalid credentials');
+            if (!err.response) {
+                setError('Network Error OR CORS Issue: Could not reach the server. Please check your internet or server configuration.');
+            } else {
+                setError(err.response?.data?.message || 'Invalid credentials');
+            }
         } finally {
             setLoading(false);
         }

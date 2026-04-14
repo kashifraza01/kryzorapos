@@ -16,7 +16,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [env('FRONTEND_URL', '*')],
+    'allowed_origins' => [env('FRONTEND_URL', '*'), 'https://kryzorapos.vercel.app', 'http://localhost:3000', 'http://127.0.0.1:8111'],
 
     'allowed_origins_patterns' => [],
 
@@ -26,6 +26,6 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => true,
+    'supports_credentials' => false,
 
 ];
