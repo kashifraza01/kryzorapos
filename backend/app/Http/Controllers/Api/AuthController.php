@@ -28,8 +28,9 @@ class AuthController extends Controller
         if ($this->isCloud()) {
             $user = $request->user();
             if (!$user) {
+                // Return 'is_active' => true to bypass the License screen and show the Login screen in cloud mode.
                 return response()->json([
-                    'valid' => false, 'is_active' => false,
+                    'valid' => true, 'is_active' => true,
                     'status' => 'unauthenticated', 'plan' => null,
                     'features' => [], 'message' => 'Not authenticated.',
                     'plans' => SubscriptionService::getPlans(),
