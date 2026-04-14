@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../api';
+import api, { isCloudMode } from '../api';
 
 const AuthContext = createContext();
 
@@ -29,25 +29,44 @@ export function AuthProvider({ children }) {
             if (token && savedUser) {
                 setUser(JSON.parse(savedUser));
             }
-            if (savedLicense) {
-                setLicense(JSON.parse(savedLicense));
-            }
 
-            // If no cached license, fetch from server (critical for Cloud mode first visit)
-            if (!savedLicense) {
-                try {
-                    const res = await api.get('/auth/license/check');
-                    const licenseData = {
-                        is_active: res.data.valid || res.data.is_active,
-                        status: res.data.status,
-                        plan: res.data.plan,
-                        features: res.data.features || [],
-                        message: res.data.message,
+            if (isCloudMode) {
+                // CLOUD MODE: License screen is never needed.
+                // If user is logged in, their subscription will be fetched on refreshLicense().
+                // If not logged in, we set a dummy "active" license so App.jsx skips LicenseActivation.
+                if (savedLicense) {
+                    setLicense(JSON.parse(savedLicense));
+                } else {
+                    // No cached license in cloud → set active so Login screen shows (not License screen)
+                    const cloudLicense = {
+                        is_active: true,
+                        status: 'cloud',
+                        plan: null,
+                        features: [],
+                        message: 'Cloud mode — login required.',
                     };
-                    localStorage.setItem('license', JSON.stringify(licenseData));
-                    setLicense(licenseData);
-                } catch (err) {
-                    console.error('License check on init failed:', err);
+                    localStorage.setItem('license', JSON.stringify(cloudLicense));
+                    setLicense(cloudLicense);
+                }
+            } else {
+                // OFFLINE MODE: Check license from server (HMAC-based LicenseService)
+                if (savedLicense) {
+                    setLicense(JSON.parse(savedLicense));
+                } else {
+                    try {
+                        const res = await api.get('/auth/license/check');
+                        const licenseData = {
+                            is_active: res.data.valid || res.data.is_active,
+                            status: res.data.status,
+                            plan: res.data.plan,
+                            features: res.data.features || [],
+                            message: res.data.message,
+                        };
+                        localStorage.setItem('license', JSON.stringify(licenseData));
+                        setLicense(licenseData);
+                    } catch (err) {
+                        console.error('License check on init failed:', err);
+                    }
                 }
             }
             setLoading(false);
@@ -63,6 +82,8 @@ export function AuthProvider({ children }) {
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('isAuthenticated', 'true');
 
+        // In cloud mode, the "license" key in login response actually contains subscription data.
+        // In offline mode, it contains HMAC license data. Both use the same shape.
         if (licenseData) {
             localStorage.setItem('license', JSON.stringify(licenseData));
             setLicense(licenseData);
@@ -93,7 +114,7 @@ export function AuthProvider({ children }) {
     };
 
     /**
-     * Check if the current license allows a specific feature
+     * Check if the current license/subscription allows a specific feature.
      */
     const hasFeature = (featureSlug) => {
         if (!license || !license.is_active) return false;
@@ -101,7 +122,7 @@ export function AuthProvider({ children }) {
     };
 
     /**
-     * Update the stored license data (called after activation)
+     * Update the stored license data (called after activation in offline mode).
      */
     const updateLicense = (licenseData) => {
         localStorage.setItem('license', JSON.stringify(licenseData));
@@ -109,13 +130,13 @@ export function AuthProvider({ children }) {
     };
 
     /**
-     * Refresh license from the server
+     * Refresh license/subscription from the server.
      */
     const refreshLicense = async () => {
         try {
             const res = await api.get('/auth/license/check');
             const licenseData = {
-                is_active: res.data.valid,
+                is_active: res.data.valid || res.data.is_active,
                 status: res.data.status,
                 plan: res.data.plan,
                 features: res.data.features || [],
@@ -133,6 +154,7 @@ export function AuthProvider({ children }) {
         <AuthContext.Provider value={{
             user, login, logout, hasPermission, loading,
             license, hasFeature, updateLicense, refreshLicense,
+            isCloudMode,
         }}>
             {children}
         </AuthContext.Provider>

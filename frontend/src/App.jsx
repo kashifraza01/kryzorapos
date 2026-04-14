@@ -41,16 +41,16 @@ function FeatureLocked({ feature, children }) {
             <h2 style={{ color: '#f1f5f9', margin: 0 }}>Feature Locked</h2>
             <p style={{ color: '#94a3b8', textAlign: 'center', maxWidth: 400 }}>
                 The <strong>{feature.replace(/-/g, ' ')}</strong> module is not available on your current plan.
-                Please upgrade your license to access this feature.
+                Please upgrade to access this feature.
             </p>
         </div>
     );
 }
 
 function App() {
-    const { user, logout, loading: authLoading, license, refreshLicense } = useAuth();
+    const { user, logout, loading: authLoading, license, refreshLicense, isCloudMode } = useAuth();
 
-    // Refresh license on mount (if logged in)
+    // Refresh license/subscription on mount (if logged in)
     useEffect(() => {
         if (user) {
             refreshLicense();
@@ -66,16 +66,17 @@ function App() {
         );
     }
 
-    // If not logged in but license is not active, show license screen first
-    // (License check is public — doesn't need auth)
-    if (!user && (!license || !license.is_active)) {
+    // =================================================================
+    // OFFLINE MODE ONLY: Show LicenseActivation if no valid license.
+    // CLOUD MODE: NEVER show LicenseActivation — go straight to Login.
+    // =================================================================
+    if (!isCloudMode && !user && (!license || !license.is_active)) {
         return (
             <Router>
                 <Routes>
                     <Route path="/menu" element={<PublicMenu />} />
                     <Route path="*" element={
                         <LicenseActivation onActivated={(licData) => {
-                            // Save license to localStorage so AuthContext finds it after reload
                             localStorage.setItem('license', JSON.stringify({
                                 is_active: licData.valid || licData.is_active || true,
                                 status: licData.status || 'active',

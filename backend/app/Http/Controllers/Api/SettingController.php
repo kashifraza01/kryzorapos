@@ -6,13 +6,40 @@ use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 
 class SettingController extends Controller
 {
+    /**
+     * Default settings returned when the database is empty or table doesn't exist.
+     * Prevents 500 errors on fresh deploys before migrations run.
+     */
+    private static function getDefaultSettings(): array
+    {
+        return [
+            'restaurant_name' => 'KryzoraPOS',
+            'restaurant_address' => '',
+            'restaurant_phone' => '',
+            'currency' => 'Rs.',
+            'footer_text' => 'Thank You! Visit Again!',
+            'tax_rate' => '0',
+            'service_charge' => '0',
+            'jazzcash_no' => '',
+            'easypaisa_no' => '',
+            'fbr_enabled' => '0',
+            'fbr_pos_id' => '',
+            'delivery_charge' => '0',
+        ];
+    }
+
     public function index()
     {
-        $settings = Setting::all()->pluck('value', 'key');
-        return response()->json($settings);
+        try {
+            $settings = Setting::all()->pluck('value', 'key');
+            return response()->json($settings);
+        } catch (\Exception $e) {
+            return response()->json(self::getDefaultSettings());
+        }
     }
 
     public function updateAll(Request $request)
@@ -46,16 +73,30 @@ class SettingController extends Controller
 
     public function getPublicSettings()
     {
-        // Cache public settings for 5 minutes (they rarely change)
-        $settings = Cache::remember('public_settings', 300, function () {
-            $keys = [
-                'restaurant_name', 'restaurant_address', 'restaurant_phone', 
-                'currency', 'footer_text', 'tax_rate', 'service_charge',
-                'jazzcash_no', 'easypaisa_no', 'fbr_enabled', 'fbr_pos_id', 'delivery_charge'
-            ];
-            return Setting::whereIn('key', $keys)->get()->pluck('value', 'key');
-        });
+        try {
+            // Cache public settings for 5 minutes (they rarely change)
+            $settings = Cache::remember('public_settings', 300, function () {
+                $keys = [
+                    'restaurant_name', 'restaurant_address', 'restaurant_phone',
+                    'currency', 'footer_text', 'tax_rate', 'service_charge',
+                    'jazzcash_no', 'easypaisa_no', 'fbr_enabled', 'fbr_pos_id', 'delivery_charge'
+                ];
 
-        return response()->json($settings);
+                // Safety check: if settings table doesn't exist yet, return defaults
+                if (!Schema::hasTable('settings')) {
+                    return collect(self::getDefaultSettings());
+                }
+
+                $dbSettings = Setting::whereIn('key', $keys)->get()->pluck('value', 'key');
+
+                // Merge with defaults so missing keys always have a value
+                return collect(self::getDefaultSettings())->merge($dbSettings);
+            });
+
+            return response()->json($settings);
+        } catch (\Exception $e) {
+            // Absolute fallback — never return 500
+            return response()->json(self::getDefaultSettings());
+        }
     }
 }
