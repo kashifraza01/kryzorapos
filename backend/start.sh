@@ -44,6 +44,11 @@ php artisan view:cache 2>/dev/null || true
 echo "Running migrations..."
 php artisan migrate --force 2>&1 || echo "Migration warning (may be OK on first deploy)"
 
+# Seed essential data (roles, permissions, admin, settings)
+# Uses firstOrCreate — safe to re-run on every deploy
+echo "Seeding essential data..."
+php artisan db:seed --class=KryzoraPOSSeeder --force 2>&1 || echo "Seeder warning (may be OK if already seeded)"
+
 # Create storage link
 php artisan storage:link 2>/dev/null || true
 

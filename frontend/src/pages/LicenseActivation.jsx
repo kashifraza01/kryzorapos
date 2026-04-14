@@ -147,7 +147,7 @@ export default function LicenseActivation({ onActivated }) {
                                 <h4>{plan.name}</h4>
                                 <div className="plan-price">
                                     <span className="currency">Rs.</span>
-                                    <span className="amount">{plan.price.toLocaleString()}</span>
+                                    <span className="amount">{(plan.price || 0).toLocaleString()}</span>
                                     <span className="period">/mo</span>
                                 </div>
                                 <ul className="plan-features">

@@ -73,7 +73,7 @@ export default function Dashboard() {
                     <div className="stat-content">
                         <span className="stat-label">Daily Sales</span>
                         <h3 className="stat-value">Rs. {Number(stats.total_revenue).toLocaleString()}</h3>
-                        <span className="stat-trend up">+15% from yesterday</span>
+                        <span className="stat-trend">Today</span>
                     </div>
                 </div>
                 <div className="stat-card">
@@ -81,7 +81,7 @@ export default function Dashboard() {
                     <div className="stat-content">
                         <span className="stat-label">Total Orders</span>
                         <h3 className="stat-value">{stats.total_orders}</h3>
-                        <span className="stat-trend up">+8% from yesterday</span>
+                        <span className="stat-trend">Today</span>
                     </div>
                 </div>
                 <div className="stat-card">

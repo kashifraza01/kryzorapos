@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'license' => \App\Http\Middleware\CheckLicense::class,
+            'can' => \App\Http\Middleware\CheckPermission::class,
         ]);
 
         $middleware->api(prepend: [

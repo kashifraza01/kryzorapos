@@ -13,6 +13,7 @@ class SubscriptionService
     const PLANS = [
         'sales' => [
             'name' => 'Sales',
+            'price' => 2000,
             'features' => [
                 'pos', 'tables', 'customers', 'orders',
                 'receipts', 'whatsapp', 'public-menu', 'order-history'
@@ -20,6 +21,7 @@ class SubscriptionService
         ],
         'sales_inventory' => [
             'name' => 'Sales + Inventory',
+            'price' => 4000,
             'features' => [
                 'pos', 'tables', 'customers', 'orders',
                 'receipts', 'whatsapp', 'public-menu', 'order-history',
@@ -28,6 +30,7 @@ class SubscriptionService
         ],
         'full' => [
             'name' => 'Full Suite',
+            'price' => 6500,
             'features' => [
                 'pos', 'tables', 'customers', 'orders',
                 'receipts', 'whatsapp', 'public-menu', 'order-history',
@@ -97,6 +100,7 @@ class SubscriptionService
             $plans[] = [
                 'slug'     => $slug,
                 'name'     => $plan['name'],
+                'price'    => $plan['price'] ?? 0,
                 'features' => $plan['features'],
             ];
         }
