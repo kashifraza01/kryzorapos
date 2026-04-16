@@ -51,14 +51,7 @@ function FeatureLocked({ feature, children }) {
 }
 
 function App() {
-    const { user, logout, loading: authLoading, license, refreshLicense, isCloudMode, serverStatus } = useAuth();
-
-    // Refresh subscription/license on mount (if logged in)
-    useEffect(() => {
-        if (user) {
-            refreshLicense();
-        }
-    }, [user]);
+    const { user, logout, loading: authLoading, license, isCloudMode, serverStatus } = useAuth();
 
     // Loading spinner with server status
     if (authLoading) {
@@ -124,22 +117,22 @@ function App() {
                             <Suspense fallback={<div className="loading"><Loader2 className="animate-spin" size={32} /> Loading...</div>}>
                                 <Routes>
                                     <Route path="/" element={<Dashboard />} />
-                                    <Route path="/pos" element={<FeatureLocked feature="pos"><POS /></FeatureLocked>} />
-                                    <Route path="/tables" element={<FeatureLocked feature="tables"><Tables /></FeatureLocked>} />
-                                    <Route path="/inventory" element={<FeatureLocked feature="inventory"><Inventory /></FeatureLocked>} />
-                                    <Route path="/menu-setup" element={<FeatureLocked feature="menu-setup"><MenuSetup /></FeatureLocked>} />
-                                    <Route path="/customers" element={<FeatureLocked feature="customers"><Customers /></FeatureLocked>} />
-                                    <Route path="/reports" element={<FeatureLocked feature="reports"><Reports /></FeatureLocked>} />
-                                    <Route path="/staff" element={<FeatureLocked feature="staff"><Staff /></FeatureLocked>} />
-                                    <Route path="/attendance" element={<FeatureLocked feature="attendance"><Attendance /></FeatureLocked>} />
-                                    <Route path="/settings" element={<FeatureLocked feature="settings"><Settings /></FeatureLocked>} />
-                                    <Route path="/kitchen" element={<FeatureLocked feature="kitchen"><Kitchen /></FeatureLocked>} />
-                                    <Route path="/order-history" element={<FeatureLocked feature="order-history"><OrderHistory /></FeatureLocked>} />
-                                    <Route path="/expenses" element={<FeatureLocked feature="expenses"><Expenses /></FeatureLocked>} />
-                                    <Route path="/suppliers" element={<FeatureLocked feature="suppliers"><Suppliers /></FeatureLocked>} />
-                                    <Route path="/purchases" element={<FeatureLocked feature="purchases"><Purchases /></FeatureLocked>} />
-                                    <Route path="/shifts" element={<FeatureLocked feature="pos"><Shifts /></FeatureLocked>} />
-                                    <Route path="/daily-report" element={<FeatureLocked feature="reports"><DailyReport /></FeatureLocked>} />
+                                    <Route path="/pos" element={<POS />} />
+                                    <Route path="/tables" element={<Tables />} />
+                                    <Route path="/inventory" element={<Inventory />} />
+                                    <Route path="/menu-setup" element={<MenuSetup />} />
+                                    <Route path="/customers" element={<Customers />} />
+                                    <Route path="/reports" element={<Reports />} />
+                                    <Route path="/staff" element={<Staff />} />
+                                    <Route path="/attendance" element={<Attendance />} />
+                                    <Route path="/settings" element={<Settings />} />
+                                    <Route path="/kitchen" element={<Kitchen />} />
+                                    <Route path="/order-history" element={<OrderHistory />} />
+                                    <Route path="/expenses" element={<Expenses />} />
+                                    <Route path="/suppliers" element={<Suppliers />} />
+                                    <Route path="/purchases" element={<Purchases />} />
+                                    <Route path="/shifts" element={<Shifts />} />
+                                    <Route path="/daily-report" element={<DailyReport />} />
                                     <Route path="/404" element={<NotFound />} />
                                     <Route path="*" element={<Navigate to="/404" replace />} />
                                 </Routes>

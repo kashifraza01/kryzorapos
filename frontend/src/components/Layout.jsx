@@ -38,7 +38,7 @@ const SidebarItem = ({ icon: Icon, label, to, active, show = true }) => {
 
 export default function Layout({ children, onLogout }) {
     const location = useLocation();
-    const { hasPermission, hasFeature, user: authUser } = useAuth();
+    const { hasFeature, user: authUser, isCloudMode } = useAuth();
     const [isDark, setIsDark] = useState(() => {
         const saved = localStorage.getItem('pos-theme');
         return saved ? saved === 'dark' : true;
@@ -75,6 +75,9 @@ export default function Layout({ children, onLogout }) {
     const userRole = authUser?.role?.name || 'Manager';
     const initials = userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 
+    // In cloud mode, always show all menu items
+    const shouldShowAll = isCloudMode;
+
     return (
         <div className="layout" data-theme={isDark ? 'dark' : 'light'}>
             {/* Mobile Overlay */}
@@ -88,25 +91,25 @@ export default function Layout({ children, onLogout }) {
 
                 <nav className="sidebar-nav">
                     <SidebarItem icon={LayoutDashboard} label="Dashboard" to="/" active={location.pathname === '/'} />
-                    <SidebarItem icon={Utensils} label="POS" to="/pos" active={location.pathname === '/pos'} show={hasFeature('pos')} />
-                    <SidebarItem icon={Table2} label="Tables" to="/tables" active={location.pathname === '/tables'} show={hasFeature('tables')} />
-                    <SidebarItem icon={Package} label="Inventory" to="/inventory" active={location.pathname === '/inventory'} show={hasFeature('inventory')} />
-                    <SidebarItem icon={List} label="Menu Setup" to="/menu-setup" active={location.pathname === '/menu-setup'} show={hasFeature('menu-setup')} />
-                    <SidebarItem icon={PieChart} label="Reports" to="/reports" active={location.pathname === '/reports'} show={hasFeature('reports')} />
-                    <SidebarItem icon={Users} label="Customers" to="/customers" active={location.pathname === '/customers'} show={hasFeature('customers')} />
-                    <SidebarItem icon={UserRound} label="Staff" to="/staff" active={location.pathname === '/staff'} show={hasFeature('staff')} />
-                    <SidebarItem icon={UserCheck} label="Attendance" to="/attendance" active={location.pathname === '/attendance'} show={hasFeature('attendance')} />
-                    <SidebarItem icon={ChefHat} label="Kitchen" to="/kitchen" active={location.pathname === '/kitchen'} show={hasFeature('kitchen')} />
-                    <SidebarItem icon={Clock} label="Order History" to="/order-history" active={location.pathname === '/order-history'} show={hasFeature('order-history')} />
-                    <SidebarItem icon={Sparkles} label="Shifts" to="/shifts" active={location.pathname === '/shifts'} show={hasFeature('pos')} />
-                    <SidebarItem icon={Wallet} label="Expenses" to="/expenses" active={location.pathname === '/expenses'} show={hasFeature('expenses')} />
-                    <SidebarItem icon={ClipboardList} label="Daily Report" to="/daily-report" active={location.pathname === '/daily-report'} show={hasFeature('reports')} />
-                    <SidebarItem icon={Users} label="Suppliers" to="/suppliers" active={location.pathname === '/suppliers'} show={hasFeature('suppliers')} />
-                    <SidebarItem icon={ShoppingCart} label="Stock Purchases" to="/purchases" active={location.pathname === '/purchases'} show={hasFeature('purchases')} />
+                    <SidebarItem icon={Utensils} label="POS" to="/pos" active={location.pathname === '/pos'} show={shouldShowAll || hasFeature('pos')} />
+                    <SidebarItem icon={Table2} label="Tables" to="/tables" active={location.pathname === '/tables'} show={shouldShowAll || hasFeature('tables')} />
+                    <SidebarItem icon={Package} label="Inventory" to="/inventory" active={location.pathname === '/inventory'} show={shouldShowAll || hasFeature('inventory')} />
+                    <SidebarItem icon={List} label="Menu Setup" to="/menu-setup" active={location.pathname === '/menu-setup'} show={shouldShowAll || hasFeature('menu-setup')} />
+                    <SidebarItem icon={PieChart} label="Reports" to="/reports" active={location.pathname === '/reports'} show={shouldShowAll || hasFeature('reports')} />
+                    <SidebarItem icon={Users} label="Customers" to="/customers" active={location.pathname === '/customers'} show={shouldShowAll || hasFeature('customers')} />
+                    <SidebarItem icon={UserRound} label="Staff" to="/staff" active={location.pathname === '/staff'} show={shouldShowAll || hasFeature('staff')} />
+                    <SidebarItem icon={UserCheck} label="Attendance" to="/attendance" active={location.pathname === '/attendance'} show={shouldShowAll || hasFeature('attendance')} />
+                    <SidebarItem icon={ChefHat} label="Kitchen" to="/kitchen" active={location.pathname === '/kitchen'} show={shouldShowAll || hasFeature('kitchen')} />
+                    <SidebarItem icon={Clock} label="Order History" to="/order-history" active={location.pathname === '/order-history'} show={shouldShowAll || hasFeature('order-history')} />
+                    <SidebarItem icon={Sparkles} label="Shifts" to="/shifts" active={location.pathname === '/shifts'} show={shouldShowAll || hasFeature('pos')} />
+                    <SidebarItem icon={Wallet} label="Expenses" to="/expenses" active={location.pathname === '/expenses'} show={shouldShowAll || hasFeature('expenses')} />
+                    <SidebarItem icon={ClipboardList} label="Daily Report" to="/daily-report" active={location.pathname === '/daily-report'} show={shouldShowAll || hasFeature('reports')} />
+                    <SidebarItem icon={Users} label="Suppliers" to="/suppliers" active={location.pathname === '/suppliers'} show={shouldShowAll || hasFeature('suppliers')} />
+                    <SidebarItem icon={ShoppingCart} label="Stock Purchases" to="/purchases" active={location.pathname === '/purchases'} show={shouldShowAll || hasFeature('purchases')} />
                 </nav>
 
                 <div className="sidebar-footer">
-                    <SidebarItem icon={Settings} label="Settings" to="/settings" active={location.pathname === '/settings'} show={hasFeature('settings')} />
+                    <SidebarItem icon={Settings} label="Settings" to="/settings" active={location.pathname === '/settings'} show={shouldShowAll || hasFeature('settings')} />
                     <button className="sidebar-item logout-btn" onClick={onLogout}>
                         <LogOut size={24} />
                         <span>Logout</span>
