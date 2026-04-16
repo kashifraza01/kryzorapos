@@ -106,7 +106,7 @@ export default function Layout({ children, onLogout }) {
                 </nav>
 
                 <div className="sidebar-footer">
-                    <SidebarItem icon={Settings} label="Settings" to="/settings" active={location.pathname === '/settings'} />
+                    <SidebarItem icon={Settings} label="Settings" to="/settings" active={location.pathname === '/settings'} show={hasFeature('settings')} />
                     <button className="sidebar-item logout-btn" onClick={onLogout}>
                         <LogOut size={24} />
                         <span>Logout</span>
