@@ -1,28 +1,28 @@
 import axios from 'axios';
 
 /**
- * BULLETPROOF cloud vs offline detection.
+ * CLOUD MODE DETECTION
  * 
- * PRIMARY: Check the browser URL — if we're NOT on localhost, we're in CLOUD.
- * This works even if VITE_API_URL is not set during Vercel build.
+ * This runs at module load time. For Vercel builds:
+ * - During build: window is undefined → checks import.meta.env
+ * - During runtime: window.location.hostname is the deployed domain
  * 
- * OFFLINE = Electron app running on localhost/127.0.0.1
- * CLOUD = Vercel/any hosted domain
+ * We check VITE_API_URL first - if set, we're definitely in cloud mode.
+ * Otherwise, check if we're NOT on localhost/127.0.0.1
  */
 const currentHost = typeof window !== 'undefined' ? window.location.hostname : '';
-export const isCloudMode = currentHost !== 'localhost' && currentHost !== '127.0.0.1' && currentHost !== '';
+const envApiUrl = import.meta.env.VITE_API_URL;
+
+// If VITE_API_URL is set (even to empty string), use it
+// Otherwise, determine from hostname
+export const isCloudMode = !!envApiUrl || (currentHost !== 'localhost' && currentHost !== '127.0.0.1' && currentHost !== '');
 
 // API URL: use env var if available for cloud mode, otherwise localhost
-const API_URL = (() => {
-    const envUrl = import.meta.env.VITE_API_URL;
-    if (envUrl) return envUrl;
-    // Fallback: derive from current host for cloud mode
-    if (isCloudMode && typeof window !== 'undefined') {
-        const proto = window.location.protocol === 'https:' ? 'https:' : 'http:';
-        return `${proto}//${window.location.host}/api`;
-    }
-    return '/api';
-})();
+const API_URL = envApiUrl || (
+    isCloudMode && typeof window !== 'undefined'
+        ? `${window.location.protocol}//${window.location.host}/api`
+        : '/api'
+);
 
 const api = axios.create({
     baseURL: API_URL,
