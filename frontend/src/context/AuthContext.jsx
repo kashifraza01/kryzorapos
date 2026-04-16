@@ -151,6 +151,7 @@ export function AuthProvider({ children }) {
     };
 
     const hasFeature = (featureSlug) => {
+        console.log('hasFeature called:', featureSlug, 'license:', license);
         if (!license || !license.is_active) return false;
         return (license.features || []).includes(featureSlug);
     };
@@ -162,24 +163,21 @@ export function AuthProvider({ children }) {
 
     const refreshLicense = async () => {
         if (isCloudMode) {
-            // In cloud, refresh subscription from server after login
-            try {
-                const res = await api.get('/auth/license/check');
-                const licData = {
-                    is_active: res.data.valid || res.data.is_active || true,
-                    status: res.data.status || 'cloud',
-                    plan: res.data.plan || 'full',
-                    features: res.data.features || [],
-                    message: res.data.message,
-                };
-                updateLicense(licData);
-                return licData;
-            } catch (err) {
-                // Cloud fallback — keep everything unlocked
-                return license;
-            }
+            // In cloud, always ensure full features - don't rely on server
+            const fullLicense = {
+                is_active: true,
+                status: 'cloud',
+                plan: 'full',
+                features: ['pos', 'tables', 'customers', 'orders', 'receipts', 'whatsapp',
+                    'public-menu', 'order-history', 'inventory', 'suppliers', 'purchases',
+                    'kitchen', 'menu-setup', 'reports', 'staff', 'attendance', 'expenses',
+                    'settings', 'dashboard-full'],
+                message: 'Cloud mode active - all features unlocked',
+            };
+            updateLicense(fullLicense);
+            return fullLicense;
         }
-        // Offline mode
+        // Offline mode - get from server
         try {
             const res = await api.get('/auth/license/check');
             const licData = {
