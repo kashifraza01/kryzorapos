@@ -11,12 +11,21 @@ class CheckSubscription
 {
     /**
      * Handle an incoming request.
-     * Checks if the authenticated user has a valid subscription.
-     *
-     * Usage in routes: ->middleware('subscription:inventory')
+     * For CLOUD mode: bypass all subscription checks - free access!
+     * For OFFLINE mode: check subscription normally.
      */
     public function handle(Request $request, Closure $next, $feature = null): Response
     {
+        // CLOUD MODE: Skip ALL subscription checks - full access!
+        // This allows free usage of the POS system in cloud
+        $isCloud = config('database.default') !== 'sqlite';
+        
+        if ($isCloud) {
+            // Cloud mode: allow everything, no restrictions
+            return $next($request);
+        }
+
+        // OFFLINE MODE: Normal subscription check
         $user = $request->user();
 
         if (!$user) {

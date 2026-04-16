@@ -46,44 +46,29 @@ api.interceptors.response.use(
             const status = error.response.status;
             const data = error.response.data || {};
 
-            if (status === 403) {
-                if (isCloudMode) {
-                    if (data.requires_subscription) {
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('user');
-                        localStorage.removeItem('isAuthenticated');
-                        localStorage.removeItem('license');
-                        window.location.href = '/';
-                    }
-                } else {
-                    if (data.requires_activation) {
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('user');
-                        localStorage.removeItem('isAuthenticated');
-                        localStorage.removeItem('license');
-                        window.location.href = '/';
-                    }
-                }
-            }
-
-            if (status === 500) {
-                console.error('Server error:', data.message || 'Internal server error');
-            }
-
+            // Handle 401 - redirect to login
             if (status === 401) {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
                 localStorage.removeItem('isAuthenticated');
+                localStorage.removeItem('license');
                 window.location.href = '/';
+            }
+
+            // Handle 500 errors
+            if (status === 500) {
+                console.error('Server error:', data.message || 'Internal server error');
             }
         }
 
-        if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
-            console.error('Request timeout - backend may be down');
-        }
-
-        if (!error.response && error.message === 'Network Error') {
-            console.error('Network error - check your internet connection');
+        // Handle network errors
+        if (!error.response) {
+            if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+                console.error('Request timeout - backend may be down');
+            }
+            if (error.message === 'Network Error') {
+                console.error('Network error - check your internet connection');
+            }
         }
 
         return Promise.reject(error);

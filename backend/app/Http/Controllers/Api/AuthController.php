@@ -31,23 +31,24 @@ class AuthController extends Controller
                 // Return 'is_active' => true to bypass the License screen and show the Login screen in cloud mode.
                 return response()->json([
                     'valid' => true, 'is_active' => true,
-                    'status' => 'unauthenticated', 'plan' => null,
-                    'features' => [], 'message' => 'Not authenticated.',
-                    'plans' => SubscriptionService::getPlans(),
+                    'status' => 'unauthenticated', 'plan' => 'full',
+                    'features' => $this->getAllCloudFeatures(), 
+                    'message' => 'Cloud mode - all features unlocked',
+                    'plans' => [],
                 ]);
             }
-            $sub = SubscriptionService::check($user);
+            // Cloud mode: return ALL features - no subscription needed!
             return response()->json([
-                'valid'           => $sub['valid'],
-                'is_active'       => $sub['valid'],
-                'status'          => $sub['status'],
-                'plan'            => $sub['plan'],
-                'features'        => $sub['features'] ?? [],
-                'expiry_date'     => $sub['expiry'] ?? null,
-                'days_left'       => $sub['days_left'] ?? null,
-                'message'         => $sub['message'],
+                'valid'           => true,
+                'is_active'       => true,
+                'status'          => 'cloud_active',
+                'plan'            => 'full',
+                'features'        => $this->getAllCloudFeatures(),
+                'expiry_date'     => null,
+                'days_left'       => null,
+                'message'         => 'Cloud mode - all features unlocked',
                 'restaurant_name' => Setting::where('key', 'restaurant_name')->value('value') ?? 'KryzoraPOS',
-                'plans'           => SubscriptionService::getPlans(),
+                'plans'           => [],
             ]);
         }
 
@@ -65,6 +66,19 @@ class AuthController extends Controller
             'restaurant_name' => Setting::where('key', 'restaurant_name')->value('value') ?? 'KryzoraPOS',
             'plans'           => LicenseService::getPlans(),
         ]);
+    }
+
+    /**
+     * Get all features for cloud mode
+     */
+    private function getAllCloudFeatures(): array
+    {
+        return [
+            'pos', 'tables', 'customers', 'orders', 'receipts', 'whatsapp',
+            'public-menu', 'order-history', 'inventory', 'suppliers', 'purchases',
+            'kitchen', 'menu-setup', 'reports', 'staff', 'attendance', 'expenses',
+            'settings', 'dashboard-full'
+        ];
     }
 
     /**
@@ -98,18 +112,18 @@ class AuthController extends Controller
             $user = $request->user();
             if (!$user) {
                 return response()->json([
-                    'valid' => false, 'status' => 'unauthenticated',
-                    'plan' => null, 'features' => [],
-                    'message' => 'Not authenticated.',
+                    'valid' => true, 'status' => 'unauthenticated',
+                    'plan' => 'full', 'features' => $this->getAllCloudFeatures(),
+                    'message' => 'Cloud mode - all features unlocked',
                 ]);
             }
-            $sub = SubscriptionService::check($user);
+            // Cloud mode: return ALL features
             return response()->json([
-                'valid'    => $sub['valid'],
-                'status'   => $sub['status'],
-                'plan'     => $sub['plan'],
-                'features' => $sub['features'] ?? [],
-                'message'  => $sub['message'],
+                'valid'    => true,
+                'status'   => 'cloud_active',
+                'plan'     => 'full',
+                'features' => $this->getAllCloudFeatures(),
+                'message'  => 'Cloud mode - all features unlocked',
             ]);
         }
 
@@ -142,16 +156,16 @@ class AuthController extends Controller
         $token = $user->createToken('pos-token')->plainTextToken;
 
         if ($this->isCloud()) {
-            $sub = SubscriptionService::check($user);
+            // Cloud mode: return ALL features - no subscription needed!
             return response()->json([
                 'user'    => $user->load('role.permissions'),
                 'token'   => $token,
                 'license' => [
-                    'is_active' => $sub['valid'],
-                    'status'    => $sub['status'],
-                    'plan'      => $sub['plan'],
-                    'features'  => $sub['features'] ?? [],
-                    'message'   => $sub['message'],
+                    'is_active' => true,
+                    'status'    => 'cloud_active',
+                    'plan'      => 'full',
+                    'features'  => $this->getAllCloudFeatures(),
+                    'message'   => 'Cloud mode - all features unlocked',
                 ],
             ]);
         }
