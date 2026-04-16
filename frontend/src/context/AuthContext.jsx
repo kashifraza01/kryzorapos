@@ -7,18 +7,27 @@ export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [license, setLicense] = useState(null);
+    const [serverStatus, setServerStatus] = useState('connecting'); // 'connecting' | 'online' | 'offline'
 
     useEffect(() => {
         const initAuth = async () => {
-            // Ping server to ensure it is up
+            // Ping server to ensure it is up - reduced retries for faster feedback
             let retries = 0;
-            while (retries < 15) {
+            const maxRetries = 5;
+            
+            while (retries < maxRetries) {
                 try {
                     await api.get('/settings/public');
+                    setServerStatus('online');
                     break;
                 } catch (e) {
-                    await new Promise(r => setTimeout(r, 1000));
                     retries++;
+                    if (retries >= maxRetries) {
+                        setServerStatus('offline');
+                        console.warn('Server unreachable after retries');
+                    } else {
+                        await new Promise(r => setTimeout(r, 1000));
+                    }
                 }
             }
 
@@ -82,9 +91,39 @@ export function AuthProvider({ children }) {
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('isAuthenticated', 'true');
 
-        if (licData) {
+        // In cloud mode, if server returns no features (no subscription), give full access
+        if (licData && isCloudMode) {
+            const finalLicense = {
+                is_active: licData.is_active ?? true,
+                status: licData.status ?? 'cloud',
+                plan: licData.plan ?? 'full',
+                features: (licData.features && licData.features.length > 0) 
+                    ? licData.features 
+                    : ['pos', 'tables', 'customers', 'orders', 'receipts', 'whatsapp',
+                        'public-menu', 'order-history', 'inventory', 'suppliers', 'purchases',
+                        'kitchen', 'menu-setup', 'reports', 'staff', 'attendance', 'expenses',
+                        'settings', 'dashboard-full'],
+                message: licData.message ?? 'Cloud mode active',
+            };
+            localStorage.setItem('license', JSON.stringify(finalLicense));
+            setLicense(finalLicense);
+        } else if (licData) {
             localStorage.setItem('license', JSON.stringify(licData));
             setLicense(licData);
+        } else if (isCloudMode) {
+            // Fallback: full features for cloud if no license data
+            const fullLicense = {
+                is_active: true,
+                status: 'cloud',
+                plan: 'full',
+                features: ['pos', 'tables', 'customers', 'orders', 'receipts', 'whatsapp',
+                    'public-menu', 'order-history', 'inventory', 'suppliers', 'purchases',
+                    'kitchen', 'menu-setup', 'reports', 'staff', 'attendance', 'expenses',
+                    'settings', 'dashboard-full'],
+                message: 'Cloud mode active',
+            };
+            localStorage.setItem('license', JSON.stringify(fullLicense));
+            setLicense(fullLicense);
         }
 
         setUser(user);
@@ -162,7 +201,7 @@ export function AuthProvider({ children }) {
         <AuthContext.Provider value={{
             user, login, logout, hasPermission, loading,
             license, hasFeature, updateLicense, refreshLicense,
-            isCloudMode,
+            isCloudMode, serverStatus,
         }}>
             {children}
         </AuthContext.Provider>

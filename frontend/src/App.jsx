@@ -2,7 +2,7 @@ import React, { useEffect, Suspense, lazy } from 'react'
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import Login from './pages/Login'
-import { Loader2, Lock } from 'lucide-react';
+import { Loader2, Lock, WifiOff, AlertTriangle } from 'lucide-react';
 import { useAuth } from './context/AuthContext'
 
 // Only import LicenseActivation for offline mode (lazy so it's not bundled in cloud)
@@ -27,6 +27,7 @@ const Purchases = lazy(() => import('./pages/Purchases'))
 const Shifts = lazy(() => import('./pages/Shifts'))
 const DailyReport = lazy(() => import('./pages/DailyReport'))
 const PublicMenu = lazy(() => import('./pages/PublicMenu'))
+const NotFound = lazy(() => import('./pages/NotFound'))
 
 /**
  * Feature locked guard — checks subscription/license features.
@@ -50,7 +51,7 @@ function FeatureLocked({ feature, children }) {
 }
 
 function App() {
-    const { user, logout, loading: authLoading, license, refreshLicense, isCloudMode } = useAuth();
+    const { user, logout, loading: authLoading, license, refreshLicense, isCloudMode, serverStatus } = useAuth();
 
     // Refresh subscription/license on mount (if logged in)
     useEffect(() => {
@@ -59,12 +60,21 @@ function App() {
         }
     }, [user]);
 
-    // Loading spinner
+    // Loading spinner with server status
     if (authLoading) {
         return (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#0f172a' }}>
                 <Loader2 className="animate-spin" size={48} style={{ color: '#FF4D4D', marginBottom: '1rem' }} />
                 <h2 style={{ color: '#e2e8f0', fontWeight: 700 }}>Loading KryzoraPOS...</h2>
+                {serverStatus === 'connecting' && (
+                    <p style={{ color: '#94a3b8', marginTop: '0.5rem' }}>Connecting to server...</p>
+                )}
+                {serverStatus === 'offline' && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#f59e0b', marginTop: '0.5rem' }}>
+                        <WifiOff size={18} />
+                        <span>Server offline - working in offline mode</span>
+                    </div>
+                )}
             </div>
         );
     }
@@ -130,7 +140,8 @@ function App() {
                                     <Route path="/purchases" element={<FeatureLocked feature="purchases"><Purchases /></FeatureLocked>} />
                                     <Route path="/shifts" element={<FeatureLocked feature="pos"><Shifts /></FeatureLocked>} />
                                     <Route path="/daily-report" element={<FeatureLocked feature="reports"><DailyReport /></FeatureLocked>} />
-                                    <Route path="*" element={<Navigate to="/" />} />
+                                    <Route path="/404" element={<NotFound />} />
+                                    <Route path="*" element={<Navigate to="/404" replace />} />
                                 </Routes>
                             </Suspense>
                         </Layout>

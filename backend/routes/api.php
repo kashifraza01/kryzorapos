@@ -65,7 +65,9 @@ Route::middleware(['auth:sanctum', 'license'])->group(function () {
         Route::get('/tables', [POSController::class, 'listTables']);
         Route::post('/tables', [POSController::class, 'storeTable']);
         Route::put('/tables/{id}/position', [POSController::class, 'updateTablePosition']);
+        Route::get('/orders', [POSController::class, 'indexOrders']);
         Route::post('/orders', [POSController::class, 'storeOrder']);
+        Route::get('/orders/{id}', [POSController::class, 'showOrder']);
         Route::post('/orders/{orderId}/pay', [POSController::class, 'processPayment']);
         Route::post('/orders/{orderId}/refund', [POSController::class, 'refundItem']);
     });
@@ -124,7 +126,7 @@ Route::middleware(['auth:sanctum', 'license'])->group(function () {
     // FULL PLAN FEATURES
     // -------------------------------------------------------
 
-    // Reports
+    // Reports & Order History (full plan)
     Route::middleware('license:reports')->group(function () {
         Route::get('/reports/daily-summary', [ReportController::class, 'dailySummary']);
         Route::get('/reports/weekly-sales', [ReportController::class, 'weeklySales']);

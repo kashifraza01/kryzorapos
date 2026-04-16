@@ -53,10 +53,10 @@ class KryzoraPOSSeeder extends Seeder
 
         // 3. Setup Default Admin Account
         User::firstOrCreate(
-            ['email' => 'admin@pos.com'],
+            ['email' => 'admin@kryzorapos.com'],
             [
                 'name' => 'Admin',
-                'password' => bcrypt('admin123'),
+                'password' => bcrypt('password'),
                 'role_id' => $adminRole->id
             ]
         );

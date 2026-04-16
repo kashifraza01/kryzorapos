@@ -20,6 +20,58 @@ class POSController extends Controller
         return response()->json($tables);
     }
 
+    /**
+     * List orders for order history - with filters
+     */
+    public function indexOrders(Request $request)
+    {
+        $query = Order::with(['customer', 'table', 'waiter', 'payments', 'items.menu_item'])
+            ->orderBy('created_at', 'desc');
+
+        // Apply filters
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->payment_status) {
+            $query->where('payment_status', $request->payment_status);
+        }
+
+        if ($request->order_type) {
+            $query->where('order_type', $request->order_type);
+        }
+
+        if ($request->date_from) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->date_to) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $perPage = $request->per_page ?? 50;
+        $orders = $query->paginate($perPage);
+
+        return response()->json($orders);
+    }
+
+    /**
+     * Show single order details
+     */
+    public function showOrder($id)
+    {
+        $order = Order::with([
+            'customer', 
+            'table', 
+            'waiter', 
+            'user',
+            'payments', 
+            'items.menu_item.ingredients.inventory'
+        ])->findOrFail($id);
+
+        return response()->json($order);
+    }
+
     public function storeTable(Request $request)
     {
         $validated = $request->validate([
