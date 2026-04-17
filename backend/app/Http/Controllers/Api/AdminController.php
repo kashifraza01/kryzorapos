@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
     /**
      * Manually assign a subscription plan to a user.
+     * Licensing removed — this sets user plan fields directly.
      *
      * POST /api/admin/set-plan
      * { user_id, plan, duration_days }
@@ -24,11 +24,13 @@ class AdminController extends Controller
         ]);
 
         $user = User::findOrFail($validated['user_id']);
-        $result = SubscriptionService::setPlan($user, $validated['plan'], $validated['duration_days']);
+        $user->update([
+            'plan' => $validated['plan'],
+            'subscription_expires_at' => now()->addDays($validated['duration_days']),
+        ]);
 
         return response()->json([
-            'message'      => "Plan '{$result['plan']}' assigned to {$user->name} for {$validated['duration_days']} days.",
-            'subscription' => $result,
+            'message' => "Plan '{$validated['plan']}' assigned to {$user->name} for {$validated['duration_days']} days.",
         ]);
     }
 }

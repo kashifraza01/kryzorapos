@@ -25,6 +25,7 @@ import {
     ShoppingCart
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useKeyboardShortcuts } from '../utils/useKeyboardShortcuts';
 
 const SidebarItem = ({ icon: Icon, label, to, active, show = true }) => {
     if (!show) return null;
@@ -39,6 +40,7 @@ const SidebarItem = ({ icon: Icon, label, to, active, show = true }) => {
 export default function Layout({ children, onLogout }) {
     const location = useLocation();
     const { hasPermission, hasFeature, user: authUser } = useAuth();
+    useKeyboardShortcuts(); // Global Enter/Esc support for all modals
     const [isDark, setIsDark] = useState(() => {
         const saved = localStorage.getItem('pos-theme');
         return saved ? saved === 'dark' : true;

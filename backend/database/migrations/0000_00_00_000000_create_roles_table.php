@@ -8,13 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
-            $table->id();
-            $table->string('name'); // Administrator, Cashier, etc.
-            $table->string('slug')->unique(); // admin, cashier, etc.
-            $table->text('description')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('roles')) {
+            Schema::create('roles', function (Blueprint $table) {
+                $table->id();
+                $table->string('name'); // Administrator, Cashier, etc.
+                $table->string('slug')->unique(); // admin, cashier, etc.
+                $table->text('description')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     public function down(): void

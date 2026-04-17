@@ -152,6 +152,62 @@ export default function POS() {
         setMenuItems(filtered);
     }, [selectedCategory, searchQuery, allMenuItems]);
 
+    // ============================================================
+    // GLOBAL KEYBOARD SHORTCUTS: Enter = confirm, Esc = close modal
+    // ============================================================
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            // ESC: Close any open modal
+            if (e.key === 'Escape') {
+                if (showReceipt) { setShowReceipt(false); return; }
+                if (showPaymentModal) { setShowPaymentModal(false); setCashReceived(''); setChangeAmount(0); return; }
+                if (showSplitModal) { setShowSplitModal(false); return; }
+            }
+
+            // ENTER: Confirm action in active modal
+            if (e.key === 'Enter') {
+                // Don't trigger if user is typing in a text input/textarea (except number inputs for cash)
+                const tag = e.target.tagName;
+                const type = e.target.type;
+
+                if (showPaymentModal && !submitting) {
+                    if (payMethod === 'cash') {
+                        if (parseFloat(cashReceived) >= total && cashReceived) {
+                            e.preventDefault();
+                            placeOrder(true);
+                        }
+                    } else {
+                        e.preventDefault();
+                        placeOrder(true);
+                    }
+                    return;
+                }
+
+                if (showSplitModal && !submitting && splitTotal >= total) {
+                    e.preventDefault();
+                    handleSplitPay();
+                    return;
+                }
+
+                if (showReceipt) {
+                    e.preventDefault();
+                    setShowReceipt(false);
+                    return;
+                }
+
+                // If not in a modal and not typing in search/textarea, checkout with Enter
+                if (!showPaymentModal && !showSplitModal && !showReceipt) {
+                    if (tag === 'INPUT' && (type === 'text' || type === 'search') && e.target.classList.contains('pos-search-input')) {
+                        return; // Let search work normally
+                    }
+                    if (tag === 'TEXTAREA' || tag === 'SELECT') return;
+                }
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [showReceipt, showPaymentModal, showSplitModal, submitting, payMethod, cashReceived, total, splitTotal]);
+
     const addToCart = (item) => {
         setCart(prev => {
             const existing = prev.find(i => i.id === item.id);

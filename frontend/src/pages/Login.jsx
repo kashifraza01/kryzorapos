@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Lock, User, Loader2 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -8,6 +8,12 @@ export default function Login() {
     const [credentials, setCredentials] = useState({ email: '', password: '' });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const emailRef = useRef(null);
+
+    // Auto-focus email field on mount
+    useEffect(() => {
+        if (emailRef.current) emailRef.current.focus();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -18,7 +24,7 @@ export default function Login() {
             await login(credentials);
         } catch (err) {
             if (!err.response) {
-                setError('Network Error OR CORS Issue: Could not reach the server. Please check your internet or server configuration.');
+                setError('Network Error: Could not reach the server. Please check your internet or server configuration.');
             } else {
                 setError(err.response?.data?.message || 'Invalid credentials');
             }
@@ -26,6 +32,17 @@ export default function Login() {
             setLoading(false);
         }
     };
+
+    // Global Escape key to clear error
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                setError('');
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     return (
         <div className="login-container">
@@ -43,6 +60,7 @@ export default function Login() {
                     <div className="input-field">
                         <User size={18} />
                         <input
+                            ref={emailRef}
                             type="email"
                             placeholder="Email Address"
                             required
@@ -66,7 +84,7 @@ export default function Login() {
                         {loading ? <Loader2 className="animate-spin" /> : 'Login to POS'}
                     </button>
                     <div className="text-center mt-4">
-                        <p className="text-xs text-muted" style={{ opacity: 0.7 }}>Default: <strong>admin@kryzorapos.com</strong> / <strong>password</strong></p>
+                        <p className="text-xs text-muted" style={{ opacity: 0.7 }}>Default: <strong>admin@kryzorapos.com</strong> / <strong>admin123</strong></p>
                     </div>
                 </form>
 

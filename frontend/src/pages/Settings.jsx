@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Printer, DollarSign, Globe, Bell, Lock, Database, Download, User, Info, PhoneCall, CreditCard, Key } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { Settings as SettingsIcon, Printer, DollarSign, Globe, Bell, Database, Download, User, Info, PhoneCall, CreditCard } from 'lucide-react';
 import api from '../api';
 
 export default function Settings() {
@@ -9,9 +8,7 @@ export default function Settings() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState({ text: '', type: '' });
-    const { license, refreshLicense } = useAuth();
-    const [newLicenseKey, setNewLicenseKey] = useState('');
-    const [activating, setActivating] = useState(false);
+
 
     const tabs = [
         { id: 'general', name: 'General', icon: Globe },
@@ -19,7 +16,6 @@ export default function Settings() {
         { id: 'printing', name: 'Printing', icon: Printer },
         { id: 'payments', name: 'Payments', icon: CreditCard },
         { id: 'database', name: 'Backup', icon: Database },
-        { id: 'license', name: 'License', icon: Key },
         { id: 'about', name: 'About', icon: Info },
     ];
 
@@ -77,21 +73,7 @@ export default function Settings() {
         }
     };
 
-    const handleActivateLicense = async (e) => {
-        e.preventDefault();
-        if (!newLicenseKey) return;
-        setActivating(true);
-        try {
-            await api.post('/auth/license/activate', { license_key: newLicenseKey });
-            setMessage({ text: 'License activated successfully! Reloading...', type: 'success' });
-            await refreshLicense();
-            setTimeout(() => window.location.reload(), 2000);
-        } catch (err) {
-            setMessage({ text: err.response?.data?.error || 'Invalid license key', type: 'error' });
-        } finally {
-            setActivating(false);
-        }
-    };
+
 
     if (loading) return <div className="loading">Loading Settings...</div>;
 
@@ -288,32 +270,7 @@ export default function Settings() {
                             </div>
                         )}
 
-                        {activeTab === 'license' && (
-                            <div className="settings-section">
-                                <h3>License Status</h3>
-                                <div className="about-card p-6 border rounded-xl bg-gradient-to-br from-primary/5 to-transparent mb-6">
-                                    <h4 className="font-bold mb-2">Current Plan: {license?.plan ? license.plan.toUpperCase() : 'UNKNOWN'}</h4>
-                                    <p className="text-sm font-medium">Status: <span className={license?.is_active ? 'text-success' : 'text-error'}>{license?.status || 'Inactive'}</span></p>
-                                    <p className="text-sm font-medium text-muted">Expires: {license?.expiry_date || 'N/A'}</p>
-                                    <p className="text-sm font-medium text-muted">Features: {(license?.features || []).join(', ')}</p>
-                                </div>
 
-                                <h3>Upgrade License</h3>
-                                <p className="text-sm text-muted mb-4">Enter a new license key to upgrade your plan or extend validity.</p>
-                                <div className="form-group">
-                                    <label>License Key</label>
-                                    <input
-                                        type="text"
-                                        placeholder="e.g. KRYZORA-LIFETIME-VIP"
-                                        value={newLicenseKey}
-                                        onChange={(e) => setNewLicenseKey(e.target.value)}
-                                    />
-                                </div>
-                                <button type="button" className="add-btn" onClick={handleActivateLicense} disabled={activating || !newLicenseKey}>
-                                    {activating ? 'Activating...' : 'Activate Key'}
-                                </button>
-                            </div>
-                        )}
 
                         {activeTab === 'about' && (
                             <div className="settings-section">
@@ -335,7 +292,7 @@ export default function Settings() {
                             </div>
                         )}
 
-                        {activeTab !== 'database' && activeTab !== 'about' && activeTab !== 'license' && (
+                        {activeTab !== 'database' && activeTab !== 'about' && (
                             <button type="submit" className="save-btn" disabled={saving}>
                                 {saving ? 'Saving...' : 'Save All Changes'}
                             </button>

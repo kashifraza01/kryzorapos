@@ -3,22 +3,39 @@ import api, { isCloudMode } from '../api';
 
 const AuthContext = createContext();
 
+// All features always unlocked — no licensing
+const ALL_FEATURES = [
+    'pos', 'tables', 'customers', 'orders', 'receipts', 'whatsapp',
+    'public-menu', 'order-history', 'inventory', 'suppliers', 'purchases',
+    'kitchen', 'menu-setup', 'reports', 'staff', 'attendance', 'expenses',
+    'settings', 'dashboard-full'
+];
+
+const FULL_LICENSE = {
+    is_active: true,
+    status: 'active',
+    plan: 'full',
+    features: ALL_FEATURES,
+    message: 'All features unlocked',
+};
+
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [license, setLicense] = useState(null);
 
     useEffect(() => {
         const initAuth = async () => {
-            // Ping server to ensure it is up
-            let retries = 0;
-            while (retries < 15) {
-                try {
-                    await api.get('/settings/public');
-                    break;
-                } catch (e) {
-                    await new Promise(r => setTimeout(r, 1000));
-                    retries++;
+            // Ping server to ensure it is up (only in offline/Electron mode)
+            if (!isCloudMode) {
+                let retries = 0;
+                while (retries < 15) {
+                    try {
+                        await api.get('/settings/public');
+                        break;
+                    } catch (e) {
+                        await new Promise(r => setTimeout(r, 1000));
+                        retries++;
+                    }
                 }
             }
 
@@ -29,45 +46,8 @@ export function AuthProvider({ children }) {
                 setUser(JSON.parse(savedUser));
             }
 
-            // ============================================================
-            // CLOUD MODE: Force license as active. No license check needed.
-            // OFFLINE MODE: Load from localStorage or fetch from server.
-            // ============================================================
-            if (isCloudMode) {
-                // HARD SET: Cloud always has license active.
-                // Actual feature gating happens via subscription after login.
-                setLicense({
-                    is_active: true,
-                    status: 'cloud',
-                    plan: 'full',
-                    features: ['pos', 'tables', 'customers', 'orders', 'receipts', 'whatsapp',
-                        'public-menu', 'order-history', 'inventory', 'suppliers', 'purchases',
-                        'kitchen', 'menu-setup', 'reports', 'staff', 'attendance', 'expenses',
-                        'settings', 'dashboard-full'],
-                    message: 'Cloud mode active',
-                });
-            } else {
-                // OFFLINE: Check saved license or fetch from server
-                const savedLicense = localStorage.getItem('license');
-                if (savedLicense) {
-                    setLicense(JSON.parse(savedLicense));
-                } else {
-                    try {
-                        const res = await api.get('/auth/license/check');
-                        const licenseData = {
-                            is_active: res.data.valid || res.data.is_active,
-                            status: res.data.status,
-                            plan: res.data.plan,
-                            features: res.data.features || [],
-                            message: res.data.message,
-                        };
-                        localStorage.setItem('license', JSON.stringify(licenseData));
-                        setLicense(licenseData);
-                    } catch (err) {
-                        console.error('License check failed:', err);
-                    }
-                }
-            }
+            // Always set full license — no licensing system
+            localStorage.setItem('license', JSON.stringify(FULL_LICENSE));
 
             setLoading(false);
         };
@@ -76,16 +56,12 @@ export function AuthProvider({ children }) {
 
     const login = async (credentials) => {
         const res = await api.post('/login', credentials);
-        const { user, token, license: licData } = res.data;
+        const { user, token } = res.data;
 
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('isAuthenticated', 'true');
-
-        if (licData) {
-            localStorage.setItem('license', JSON.stringify(licData));
-            setLicense(licData);
-        }
+        localStorage.setItem('license', JSON.stringify(FULL_LICENSE));
 
         setUser(user);
         return user;
@@ -102,7 +78,6 @@ export function AuthProvider({ children }) {
             localStorage.removeItem('isAuthenticated');
             localStorage.removeItem('license');
             setUser(null);
-            setLicense(null);
         }
     };
 
@@ -111,57 +86,16 @@ export function AuthProvider({ children }) {
         return user.role.permissions.some(p => p.slug === permissionSlug);
     };
 
-    const hasFeature = (featureSlug) => {
-        if (!license || !license.is_active) return false;
-        return (license.features || []).includes(featureSlug);
-    };
+    // All features always available — no licensing
+    const hasFeature = () => true;
 
-    const updateLicense = (licenseData) => {
-        localStorage.setItem('license', JSON.stringify(licenseData));
-        setLicense(licenseData);
-    };
-
-    const refreshLicense = async () => {
-        if (isCloudMode) {
-            // In cloud, refresh subscription from server after login
-            try {
-                const res = await api.get('/auth/license/check');
-                const licData = {
-                    is_active: res.data.valid || res.data.is_active || true,
-                    status: res.data.status || 'cloud',
-                    plan: res.data.plan || 'full',
-                    features: res.data.features || [],
-                    message: res.data.message,
-                };
-                updateLicense(licData);
-                return licData;
-            } catch (err) {
-                // Cloud fallback — keep everything unlocked
-                return license;
-            }
-        }
-        // Offline mode
-        try {
-            const res = await api.get('/auth/license/check');
-            const licData = {
-                is_active: res.data.valid,
-                status: res.data.status,
-                plan: res.data.plan,
-                features: res.data.features || [],
-                message: res.data.message,
-            };
-            updateLicense(licData);
-            return licData;
-        } catch (err) {
-            console.error('License refresh failed:', err);
-            return null;
-        }
-    };
+    const updateLicense = () => {};
+    const refreshLicense = async () => FULL_LICENSE;
 
     return (
         <AuthContext.Provider value={{
             user, login, logout, hasPermission, loading,
-            license, hasFeature, updateLicense, refreshLicense,
+            license: FULL_LICENSE, hasFeature, updateLicense, refreshLicense,
             isCloudMode,
         }}>
             {children}

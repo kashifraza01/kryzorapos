@@ -12,12 +12,17 @@ import axios from 'axios';
 const currentHost = typeof window !== 'undefined' ? window.location.hostname : '';
 export const isCloudMode = currentHost !== 'localhost' && currentHost !== '127.0.0.1' && currentHost !== '';
 
-// API URL: use env var if available, otherwise derive from current host
-const API_URL = import.meta.env.VITE_API_URL || (
-    isCloudMode
-        ? 'https://terrific-simplicity-aa.up.railway.app/api'
-        : '/api'
-);
+// API URL: use env var if available for cloud mode, otherwise localhost
+const API_URL = (() => {
+    const envUrl = import.meta.env.VITE_API_URL;
+    if (envUrl) return envUrl;
+    // Fallback: derive from current host for cloud mode
+    if (isCloudMode && typeof window !== 'undefined') {
+        const proto = window.location.protocol === 'https:' ? 'https:' : 'http:';
+        return `${proto}//${window.location.host}/api`;
+    }
+    return '/api';
+})();
 
 const api = axios.create({
     baseURL: API_URL,
@@ -37,27 +42,30 @@ api.interceptors.request.use(config => {
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response && error.response.status === 403) {
+        if (error.response) {
+            const status = error.response.status;
             const data = error.response.data || {};
 
-            if (isCloudMode) {
-                if (data.requires_subscription) {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
-                    localStorage.removeItem('isAuthenticated');
-                    localStorage.removeItem('license');
-                    window.location.href = '/';
-                }
-            } else {
-                if (data.requires_activation) {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
-                    localStorage.removeItem('isAuthenticated');
-                    localStorage.removeItem('license');
-                    window.location.href = '/';
-                }
+            if (status === 500) {
+                console.error('Server error:', data.message || 'Internal server error');
+            }
+
+            if (status === 401) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                localStorage.removeItem('isAuthenticated');
+                window.location.href = '/';
             }
         }
+
+        if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+            console.error('Request timeout - backend may be down');
+        }
+
+        if (!error.response && error.message === 'Network Error') {
+            console.error('Network error - check your internet connection');
+        }
+
         return Promise.reject(error);
     }
 );

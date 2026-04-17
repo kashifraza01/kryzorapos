@@ -11,7 +11,6 @@ class KryzoraPOSSeeder extends Seeder
     public function run()
     {
         // 1. Seed restaurant settings safely (firstOrCreate = never overwrites existing values)
-        // IMPORTANT: This must NEVER touch license_* keys — those are managed by LicenseService only
         $settings = [
             'restaurant_name' => "KryzoraPOS",
             'restaurant_address' => 'Your Restaurant Address',
@@ -28,10 +27,6 @@ class KryzoraPOSSeeder extends Seeder
         ];
 
         foreach ($settings as $key => $value) {
-            // Safety: Skip any license-related keys (should never be here, but guard anyway)
-            if (str_starts_with($key, 'license_')) {
-                continue;
-            }
             Setting::firstOrCreate(['key' => $key], ['value' => $value]);
         }
 
@@ -51,13 +46,26 @@ class KryzoraPOSSeeder extends Seeder
             }
         }
 
-        // 3. Setup Default Admin Account
+        // 3. Setup Default Admin Account — admin@kryzorapos.com / admin123
+        // Update existing admin if email changed, or create new
+        $existingAdmin = User::where('email', 'admin@pos.com')->first();
+        if ($existingAdmin) {
+            $existingAdmin->update([
+                'email' => 'admin@kryzorapos.com',
+                'password' => bcrypt('admin123'),
+                'plan' => 'full',
+                'subscription_expires_at' => now()->addYears(100),
+            ]);
+        }
+
         User::firstOrCreate(
-            ['email' => 'admin@pos.com'],
+            ['email' => 'admin@kryzorapos.com'],
             [
                 'name' => 'Admin',
                 'password' => bcrypt('admin123'),
-                'role_id' => $adminRole->id
+                'role_id' => $adminRole->id,
+                'plan' => 'full',
+                'subscription_expires_at' => now()->addYears(100),
             ]
         );
 
