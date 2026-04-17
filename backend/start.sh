@@ -31,9 +31,32 @@ if [ -z "$RAILWAY_ENVIRONMENT" ] && [ ! -f ".env" ]; then
     php artisan key:generate --force
 fi
 
-# Generate APP_KEY if not set (Railway: set APP_KEY in dashboard)
-if [ -z "$APP_KEY" ] && [ ! -f ".env" ]; then
-    echo "WARNING: APP_KEY not set. Generate one and set it in Railway dashboard."
+# Generate APP_KEY if not set (to prevent 500 errors on Railway)
+if [ -z "$APP_KEY" ]; then
+    echo "WARNING: APP_KEY not set. Generating a temporary one for this instance to prevent crash."
+    export APP_KEY=$(php artisan key:generate --show --no-ansi)
+    
+    # If .env does not exist, Laravel 11 may fail without an explicitly passed env var or a file.
+    # We create a minimal .env to ensure the app doesn't crash
+    if [ ! -f ".env" ]; then
+        if [ -f ".env.cloud" ]; then
+            echo "Copying .env.cloud to .env as baseline..."
+            cp .env.cloud .env
+        elif [ -f ".env.example" ]; then
+            echo "Copying .env.example to .env..."
+            cp .env.example .env
+        else
+            touch .env
+        fi
+        
+        # Inject the key we just generated
+        if grep -q "^APP_KEY=" .env; then
+            # We use PHP instead of sed for cross-platform compatibility
+            php -r "file_put_contents('.env', preg_replace('/^APP_KEY=.*$/m', 'APP_KEY='.$_ENV['APP_KEY'], file_get_contents('.env')));"
+        else
+            echo "APP_KEY=$APP_KEY" >> .env
+        fi
+    fi
 fi
 
 # Cache routes and views (NOT config — config must read env vars dynamically on Railway)

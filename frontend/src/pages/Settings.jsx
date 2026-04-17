@@ -55,12 +55,10 @@ export default function Settings() {
 
     const handleBackup = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8111/api/system/backup', {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
+            const response = await api.get('/system/backup', {
+                responseType: 'blob',
             });
-            const blob = await response.blob();
+            const blob = response.data;
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -68,6 +66,7 @@ export default function Settings() {
             document.body.appendChild(a);
             a.click();
             a.remove();
+            window.URL.revokeObjectURL(url);
         } catch (error) {
             alert('Backup failed: ' + error.message);
         }

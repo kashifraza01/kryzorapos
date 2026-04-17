@@ -12,16 +12,18 @@ import axios from 'axios';
 const currentHost = typeof window !== 'undefined' ? window.location.hostname : '';
 export const isCloudMode = currentHost !== 'localhost' && currentHost !== '127.0.0.1' && currentHost !== '';
 
-// API URL: use env var if available for cloud mode, otherwise localhost
+// API URL: In offline/Electron mode, always use local PHP server.
+// In cloud mode, use env var or derive from current host.
 const API_URL = (() => {
+    // OFFLINE MODE (Electron) — always use local PHP backend
+    if (!isCloudMode) {
+        return 'http://127.0.0.1:8111/api';
+    }
+    // CLOUD MODE — use env var if set, otherwise derive from current host
     const envUrl = import.meta.env.VITE_API_URL;
     if (envUrl) return envUrl;
-    // Fallback: derive from current host for cloud mode
-    if (isCloudMode && typeof window !== 'undefined') {
-        const proto = window.location.protocol === 'https:' ? 'https:' : 'http:';
-        return `${proto}//${window.location.host}/api`;
-    }
-    return '/api';
+    const proto = window.location.protocol === 'https:' ? 'https:' : 'http:';
+    return `${proto}//${window.location.host}/api`;
 })();
 
 const api = axios.create({
