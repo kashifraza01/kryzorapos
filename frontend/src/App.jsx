@@ -31,9 +31,9 @@ function App() {
     // Loading spinner
     if (authLoading) {
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#0f172a' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#F8F9FA' }}>
                 <Loader2 className="animate-spin" size={48} style={{ color: '#FF4D4D', marginBottom: '1rem' }} />
-                <h2 style={{ color: '#e2e8f0', fontWeight: 700 }}>Loading KryzoraPOS...</h2>
+                <h2 style={{ color: '#2D3436', fontWeight: 700 }}>Loading KryzoraPOS...</h2>
             </div>
         );
     }

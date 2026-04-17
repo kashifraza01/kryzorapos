@@ -43,7 +43,7 @@ export default function Layout({ children, onLogout }) {
     useKeyboardShortcuts(); // Global Enter/Esc support for all modals
     const [isDark, setIsDark] = useState(() => {
         const saved = localStorage.getItem('pos-theme');
-        return saved ? saved === 'dark' : true;
+        return saved ? saved === 'dark' : false;
     });
     const [restaurantName, setRestaurantName] = useState('KryzoraPOS');
     const [alertsCount, setAlertsCount] = useState(0);
