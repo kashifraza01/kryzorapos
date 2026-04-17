@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, Loader2, Edit, Trash2, Tag, Utensils, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus, X, Loader2, Edit, Trash2, Tag, Utensils, ToggleLeft, ToggleRight, Package } from 'lucide-react';
 import api from '../api';
 
 export default function MenuSetup() {
