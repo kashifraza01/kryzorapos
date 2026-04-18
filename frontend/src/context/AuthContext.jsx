@@ -3,22 +3,6 @@ import api, { isCloudMode } from '../api';
 
 const AuthContext = createContext();
 
-// All features always unlocked — no licensing
-const ALL_FEATURES = [
-    'pos', 'tables', 'customers', 'orders', 'receipts', 'whatsapp',
-    'public-menu', 'order-history', 'inventory', 'suppliers', 'purchases',
-    'kitchen', 'menu-setup', 'reports', 'staff', 'attendance', 'expenses',
-    'settings', 'dashboard-full'
-];
-
-const FULL_LICENSE = {
-    is_active: true,
-    status: 'active',
-    plan: 'full',
-    features: ALL_FEATURES,
-    message: 'All features unlocked',
-};
-
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -46,9 +30,6 @@ export function AuthProvider({ children }) {
                 setUser(JSON.parse(savedUser));
             }
 
-            // Always set full license — no licensing system
-            localStorage.setItem('license', JSON.stringify(FULL_LICENSE));
-
             setLoading(false);
         };
         initAuth();
@@ -61,7 +42,6 @@ export function AuthProvider({ children }) {
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('license', JSON.stringify(FULL_LICENSE));
 
         setUser(user);
         return user;
@@ -76,7 +56,6 @@ export function AuthProvider({ children }) {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             localStorage.removeItem('isAuthenticated');
-            localStorage.removeItem('license');
             setUser(null);
         }
     };
@@ -86,17 +65,9 @@ export function AuthProvider({ children }) {
         return user.role.permissions.some(p => p.slug === permissionSlug);
     };
 
-    // All features always available — no licensing
-    const hasFeature = () => true;
-
-    const updateLicense = () => {};
-    const refreshLicense = async () => FULL_LICENSE;
-
     return (
         <AuthContext.Provider value={{
-            user, login, logout, hasPermission, loading,
-            license: FULL_LICENSE, hasFeature, updateLicense, refreshLicense,
-            isCloudMode,
+            user, login, logout, hasPermission, loading, isCloudMode,
         }}>
             {children}
         </AuthContext.Provider>

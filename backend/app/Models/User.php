@@ -26,8 +26,6 @@ class User extends Authenticatable
         'phone',
         'salary_type',
         'base_salary',
-        'plan',
-        'subscription_expires_at',
     ];
 
     public function role()
@@ -65,7 +63,6 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'subscription_expires_at' => 'datetime',
         ];
     }
 }

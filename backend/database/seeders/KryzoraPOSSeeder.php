@@ -53,8 +53,6 @@ class KryzoraPOSSeeder extends Seeder
             $existingAdmin->update([
                 'email' => 'admin@kryzorapos.com',
                 'password' => bcrypt('admin123'),
-                'plan' => 'full',
-                'subscription_expires_at' => now()->addYears(100),
             ]);
         }
 
@@ -64,8 +62,6 @@ class KryzoraPOSSeeder extends Seeder
                 'name' => 'Admin',
                 'password' => bcrypt('admin123'),
                 'role_id' => $adminRole->id,
-                'plan' => 'full',
-                'subscription_expires_at' => now()->addYears(100),
             ]
         );
 

@@ -77,7 +77,7 @@ export default function POS() {
                 setSelectedCategory(catRes.data[0].id);
             }
 
-            // Load tables separately (may fail if license doesn't include it)
+            // Load tables separately
             try {
                 const tablesRes = await api.get('/tables');
                 setTables(tablesRes.data);
@@ -85,7 +85,7 @@ export default function POS() {
                 console.warn('Tables not available:', e.response?.status);
             }
 
-            // Load staff/waiters separately (only available on full plan)
+            // Load staff/waiters separately
             try {
                 const staffRes = await api.get('/staff');
                 const waiterStaff = staffRes.data.filter(s => s.role_id === 4 || s.role?.slug === 'waiter' || s.role?.name?.toLowerCase().includes('waiter'));
