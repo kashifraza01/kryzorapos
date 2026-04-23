@@ -12,6 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Trust Railway's reverse proxy (HTTPS termination)
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'can' => \App\Http\Middleware\CheckPermission::class,
         ]);

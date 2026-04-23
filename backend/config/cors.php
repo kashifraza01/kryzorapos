@@ -7,8 +7,8 @@ return [
     | Cross-Origin Resource Sharing (CORS) Configuration
     |--------------------------------------------------------------------------
     |
-    | Settings for cross-origin resource sharing. In production, only the
-    | frontend domain is allowed. For local Electron, set FRONTEND_URL=*
+    | Allow all origins so both Vercel (cloud) and Electron (offline) work.
+    | Sanctum token auth does not require credentials, so wildcard is safe.
     |
     */
 
@@ -16,13 +16,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        env('FRONTEND_URL', '*'),
-        'http://localhost:3000',
-        'http://127.0.0.1:3000',
-        'http://localhost:5173',
-        'http://127.0.0.1:5173',
-    ],
+    'allowed_origins' => ['*'],
 
     'allowed_origins_patterns' => [],
 
@@ -35,3 +29,4 @@ return [
     'supports_credentials' => false,
 
 ];
+
