@@ -23,10 +23,18 @@ export default function Login() {
         try {
             await login(credentials);
         } catch (err) {
+            console.error('[Login] Error:', err);
             if (!err.response) {
-                setError('Network Error: Could not reach the server. Please check your internet or server configuration.');
+                setError('Network Error: Could not reach the server. Check your internet connection.');
+            } else if (err.response.status === 401) {
+                setError('Invalid email or password.');
+            } else if (err.response.status === 422) {
+                const msgs = err.response.data?.errors;
+                setError(msgs ? Object.values(msgs).flat().join(' ') : 'Please check your input.');
+            } else if (err.response.status === 429) {
+                setError('Too many login attempts. Please wait a minute and try again.');
             } else {
-                setError(err.response?.data?.message || 'Invalid credentials');
+                setError(err.response?.data?.message || `Server error (${err.response.status})`);
             }
         } finally {
             setLoading(false);

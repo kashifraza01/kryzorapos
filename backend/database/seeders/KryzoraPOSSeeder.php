@@ -47,16 +47,8 @@ class KryzoraPOSSeeder extends Seeder
         }
 
         // 3. Setup Default Admin Account — admin@kryzorapos.com / admin123
-        // Update existing admin if email changed, or create new
-        $existingAdmin = User::where('email', 'admin@pos.com')->first();
-        if ($existingAdmin) {
-            $existingAdmin->update([
-                'email' => 'admin@kryzorapos.com',
-                'password' => bcrypt('admin123'),
-            ]);
-        }
-
-        User::firstOrCreate(
+        // updateOrCreate ensures password is always reset on deploy
+        User::updateOrCreate(
             ['email' => 'admin@kryzorapos.com'],
             [
                 'name' => 'Admin',
