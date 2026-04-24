@@ -30,19 +30,6 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10
 // System health check
 Route::get('/test', fn() => response()->json(['msg' => 'API OK']));
 
-// TEMPORARY: Force reset admin password (remove after login works)
-Route::get('/fix-admin', function () {
-    $user = \App\Models\User::where('email', 'admin@kryzorapos.com')->first();
-    if ($user) {
-        $user->password = 'admin123';
-        $user->save();
-        return response()->json(['status' => 'Admin password reset', 'user_id' => $user->id]);
-    }
-    // If admin doesn't exist, run seeder
-    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'Database\\Seeders\\KryzoraPOSSeeder', '--force' => true]);
-    return response()->json(['status' => 'Seeder ran - admin created']);
-});
-
 // Public endpoints — rate limited
 Route::middleware('throttle:60,1')->group(function () {
     Route::get('/settings/public', [SettingController::class, 'getPublicSettings']);
