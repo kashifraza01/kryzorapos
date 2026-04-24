@@ -48,11 +48,13 @@ class KryzoraPOSSeeder extends Seeder
 
         // 3. Setup Default Admin Account — admin@kryzorapos.com / admin123
         // updateOrCreate ensures password is always reset on deploy
+        // NOTE: Do NOT use bcrypt() here — User model has 'password' => 'hashed' cast
+        // which auto-hashes on set. Using bcrypt() would double-hash and break login.
         User::updateOrCreate(
             ['email' => 'admin@kryzorapos.com'],
             [
                 'name' => 'Admin',
-                'password' => bcrypt('admin123'),
+                'password' => 'admin123',
                 'role_id' => $adminRole->id,
             ]
         );
