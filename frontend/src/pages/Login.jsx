@@ -83,9 +83,6 @@ export default function Login() {
                     <button type="submit" className="login-btn" disabled={loading}>
                         {loading ? <Loader2 className="animate-spin" /> : 'Login to POS'}
                     </button>
-                    <div className="text-center mt-4">
-                        <p className="text-xs text-muted" style={{ opacity: 0.7 }}>Default: <strong>admin@kryzorapos.com</strong> / <strong>admin123</strong></p>
-                    </div>
                 </form>
 
                 <div className="login-footer">

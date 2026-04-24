@@ -179,8 +179,7 @@ class MenuController extends Controller
 
             return response()->json(['message' => 'Ingredients updated']);
         } catch (\Exception $e) {
-            \Log::error('Menu updateIngredients error: ' . $e->getMessage());
-            return response()->json(['error' => 'Server Error'], 500);
+            return response()->json(['error' => 'Server Error: ' . $e->getMessage()], 500);
         }
     }
 }

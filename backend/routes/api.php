@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\PublicMenuController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\PurchaseController;
 use App\Http\Controllers\Api\ShiftController;
+use App\Http\Controllers\Api\DemoDataController;
 
 // ============================================================
 // PUBLIC ROUTES (No auth required)
@@ -29,11 +30,13 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10
 // System health check
 Route::get('/test', fn() => response()->json(['msg' => 'API OK']));
 
-// Public settings (for initial app load)
-Route::get('/settings/public', [SettingController::class, 'getPublicSettings']);
-Route::get('/public-menu', [PublicMenuController::class, 'getMenu']);
-Route::post('/public-menu/order', [PublicMenuController::class, 'placeOrder'])->middleware('throttle:30,1');
-Route::get('/kitchen/stream', [KitchenController::class, 'stream']);
+// Public endpoints — rate limited
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('/settings/public', [SettingController::class, 'getPublicSettings']);
+    Route::get('/public-menu', [PublicMenuController::class, 'getMenu']);
+    Route::post('/public-menu/order', [PublicMenuController::class, 'placeOrder'])->middleware('throttle:30,1');
+    Route::get('/kitchen/stream', [KitchenController::class, 'stream']);
+});
 
 // ============================================================
 // AUTHENTICATED ROUTES (All require login)
@@ -45,6 +48,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // System Operations
     Route::get('/system/backup', [BackupController::class, 'download']);
+
+    // Demo Data (Admin only)
+    Route::middleware('can:manage-staff')->group(function () {
+        Route::post('/system/demo/seed', [DemoDataController::class, 'seed']);
+        Route::post('/system/demo/fresh', [DemoDataController::class, 'fresh']);
+    });
 
     // -------------------------------------------------------
     // MENU (Read for all, Write for authorized)

@@ -113,7 +113,7 @@ export default function Dashboard() {
                             <BarChart data={salesChart}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                                 <XAxis dataKey="date" fontSize={11} stroke="var(--text-muted)" />
-                                <YAxis fontSize={11} stroke="var(--text-muted)" />
+                                <YAxis fontSize={11} stroke="var(--text-muted)" domain={[0, 'auto']} />
                                 <Tooltip
                                     contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px' }}
                                 />

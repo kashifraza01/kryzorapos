@@ -16,13 +16,15 @@ class DatabaseDemoSeeder extends Seeder
 {
     public function run()
     {
-        // Guard: Don't seed demo data if orders already exist
-        if (Order::count() > 0) {
-            $this->command?->info('Demo data already exists, skipping.');
-            return;
-        }
+        // Clean up partials
+        Order::query()->delete();
+        OrderItem::query()->delete();
+        Payment::query()->delete();
+        Shift::query()->delete();
+        Expense::query()->delete();
 
-        // 1. Categories & Items
+        \Illuminate\Support\Facades\DB::beginTransaction();
+
         $categories = [
             'Burgers' => [
                 ['name' => 'Classic Zinger', 'price' => 450],
@@ -142,5 +144,6 @@ class DatabaseDemoSeeder extends Seeder
 
             $startDate->addDay();
         }
+        \Illuminate\Support\Facades\DB::commit();
     }
 }

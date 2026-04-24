@@ -76,7 +76,7 @@ class POSController extends Controller
                     // Delete old items
                     $order->items()->delete();
                     
-                    // Update Order
+                    // Update Order (preserve original shift_id)
                     $order->update([
                         'customer_id'     => $validated['customer_id'] ?? null,
                         'table_id'        => $validated['table_id'] ?? null,
@@ -88,6 +88,7 @@ class POSController extends Controller
                         'delivery_charge' => $validated['delivery_charge'] ?? 0,
                         'total_amount'    => $validated['total'],
                         'delivery_address'=> $validated['delivery_address'] ?? null,
+                        'shift_id'        => $order->shift_id,
                     ]);
                 } else {
                     // Link to active shift if one is open
@@ -237,8 +238,12 @@ class POSController extends Controller
                     RestaurantTable::where('id', $order->table_id)->update(['status' => 'available']);
                 }
 
-                // Fire FBR API Integration
-                \App\Services\FBRService::generateFBRInvoice($order);
+                // Fire FBR API Integration (non-critical, don't block payment)
+                try {
+                    \App\Services\FBRService::generateFBRInvoice($order);
+                } catch (\Exception $e) {
+                    \Log::warning('FBR invoice generation failed: ' . $e->getMessage());
+                }
 
                 return response()->json([
                     'message'        => 'Payment processed successfully',
@@ -340,11 +345,15 @@ class POSController extends Controller
                         ->where('status', 'open')
                         ->latest()
                         ->first();
-                        
+                    
+                    // Use the original payment method from the order's first payment
+                    $originalPayment = $order->payments->first();
+                    $refundMethod = $originalPayment ? $originalPayment->payment_method : 'cash';
+                    
                     Payment::create([
                         'order_id'              => $order->id,
                         'shift_id'              => $activeShift?->id,
-                        'payment_method'        => 'cash', // Assuming cash refund
+                        'payment_method'        => $refundMethod,
                         'amount'                => -$totalRefundValue,
                         'transaction_reference' => 'Partial Refund',
                         'status'                => 'success',

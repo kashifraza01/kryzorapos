@@ -5,9 +5,15 @@ import api from '../api';
 export default function MenuSetup() {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+    const [toast, setToast] = useState({ show: false, message: '', type: '' });
+    const showToast = (message, type = 'success') => {
+        setToast({ show: true, message, type });
+        setTimeout(() => setToast({ show: false, message: '', type: '' }), 3000);
+    };
+
     const [showCatModal, setShowCatModal] = useState(false);
     const [showItemModal, setShowItemModal] = useState(false);
-    const [submitting, setSubmitting] = useState(false);
 
     const [catFormData, setCatFormData] = useState({ name: '', image: '', image_file: null });
     const [itemFormData, setItemFormData] = useState({
@@ -60,8 +66,9 @@ export default function MenuSetup() {
             setEditingItem(null);
             setItemFormData({ ...itemFormData, name: '', price: '', cost_price: '', description: '', image: '', image_file: null });
             fetchMenu();
+            showToast('Item updated successfully', 'success');
         } catch (error) {
-            alert('Error updating item');
+            showToast(error.response?.data?.message || 'Error updating item', 'error');
         } finally {
             setSubmitting(false);
         }
@@ -83,7 +90,7 @@ export default function MenuSetup() {
             setInventory(invRes.data);
             setShowIngModal(true);
         } catch (error) {
-            alert('Error fetching ingredients');
+            showToast('Error fetching ingredients', 'error');
         } finally {
             setLoading(false);
         }
@@ -148,8 +155,11 @@ export default function MenuSetup() {
             setShowCatModal(false);
             setCatFormData({ name: '', image: '', image_file: null });
             fetchMenu();
+            showToast('Category added successfully', 'success');
         } catch (error) {
-            alert('Error adding category');
+            console.error('Add category error:', error);
+            const msg = error.response?.data?.message || error.response?.data?.error || 'Error adding category';
+            showToast(msg, 'error');
         } finally {
             setSubmitting(false);
         }
@@ -173,9 +183,11 @@ export default function MenuSetup() {
             setShowItemModal(false);
             setItemFormData({ ...itemFormData, name: '', price: '', cost_price: '', description: '', image: '', image_file: null });
             fetchMenu();
+            showToast('Item added successfully', 'success');
         } catch (error) {
-            console.error(error.response?.data);
-            alert(error.response?.data?.message || 'Error adding item');
+            console.error('Add item error:', error);
+            const msg = error.response?.data?.message || error.response?.data?.error || 'Error adding item';
+            showToast(msg, 'error');
         } finally {
             setSubmitting(false);
         }
@@ -186,7 +198,7 @@ export default function MenuSetup() {
             await api.put(`/menu/items/${item.id}`, { is_available: !item.is_available });
             fetchMenu();
         } catch (error) {
-            alert('Error updating availability');
+            showToast('Error updating availability', 'error');
         }
     };
 
@@ -195,8 +207,9 @@ export default function MenuSetup() {
         try {
             await api.delete(`/menu/items/${id}`);
             fetchMenu();
+            showToast('Item deleted', 'success');
         } catch (error) {
-            alert('Error deleting item');
+            showToast('Error deleting item', 'error');
         }
     };
 
@@ -205,8 +218,9 @@ export default function MenuSetup() {
         try {
             await api.delete(`/menu/categories/${id}`);
             fetchMenu();
+            showToast('Category deleted', 'success');
         } catch (error) {
-            alert('Error deleting category');
+            showToast('Error deleting category', 'error');
         }
     };
 
@@ -214,25 +228,37 @@ export default function MenuSetup() {
 
     return (
         <div className="menu-setup-page">
+            {toast.show && (
+                <div className={`pos-toast ${toast.type}`} style={{ position: 'fixed', top: '1rem', right: '1rem', zIndex: 9999 }}>
+                    {toast.message}
+                </div>
+            )}
             <div className="page-header">
                 <div className="header-title">
                     <h2>Menu Management</h2>
                     <p className="text-muted">Set up your restaurant's digital menu</p>
                 </div>
                 <div className="header-actions-flex">
-                    <button className="add-btn-secondary" onClick={() => setShowCatModal(true)}>
+                    <button className="add-btn-secondary" onClick={() => { console.log('Opening category modal'); setShowCatModal(true); }}>
                         <Tag size={18} />
                         <span>Add Category</span>
                     </button>
-                    <button className="add-btn" onClick={() => setShowItemModal(true)}>
+                    <button className="add-btn" onClick={() => { console.log('Opening item modal'); setShowItemModal(true); }}>
                         <Utensils size={18} />
                         <span>Add Menu Item</span>
                     </button>
                 </div>
             </div>
 
-            <div className="menu-setup-grid">
-                {categories.map(cat => (
+            {categories.length === 0 ? (
+                <div className="empty-state" style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--text-muted)' }}>
+                    <Utensils size={64} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+                    <h3>No Menu Categories</h3>
+                    <p>Get started by adding your first menu category.</p>
+                </div>
+            ) : (
+                <div className="menu-setup-grid">
+                    {categories.map(cat => (
                     <div key={cat.id} className="setup-cat-section">
                         <div className="section-header">
                             <h3>{cat.name}</h3>
@@ -277,7 +303,8 @@ export default function MenuSetup() {
                         </div>
                     </div>
                 ))}
-            </div>
+                </div>
+            )}
 
             {/* Ingredients Modal */}
             {showIngModal && (

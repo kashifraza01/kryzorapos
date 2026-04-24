@@ -72,6 +72,16 @@ export default function Settings() {
         }
     };
 
+    const handleSeedDemo = async () => {
+        if (!window.confirm('This will add sample menu items and demo data. Continue?')) return;
+        try {
+            await api.post('/system/demo/seed');
+            alert('Sample data seeded successfully! Refresh the page to see changes.');
+        } catch (error) {
+            alert('Seeding failed: ' + (error.response?.data?.error || error.message));
+        }
+    };
+
 
 
     if (loading) return <div className="loading">Loading Settings...</div>;
@@ -264,6 +274,16 @@ export default function Settings() {
                                     <button type="button" className="add-btn flex items-center gap-2" onClick={handleBackup}>
                                         <Download size={18} />
                                         <span>Download SQLITE</span>
+                                    </button>
+                                </div>
+                                <div className="backup-card p-4 border rounded-lg bg-surface flex items-center justify-between">
+                                    <div>
+                                        <h4 className="font-bold">Load Sample Data</h4>
+                                        <p className="text-sm text-muted">Add demo menu items and sample orders.</p>
+                                    </div>
+                                    <button type="button" className="add-btn-secondary flex items-center gap-2" onClick={handleSeedDemo}>
+                                        <Database size={18} />
+                                        <span>Seed Demo Data</span>
                                     </button>
                                 </div>
                             </div>

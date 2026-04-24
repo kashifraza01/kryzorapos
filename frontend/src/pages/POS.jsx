@@ -667,7 +667,7 @@ export default function POS() {
 
                         <div className="split-actions">
                             <button className="checkout-btn" onClick={handleSplitPay} disabled={submitting || splitTotal < total}>
-                                {submitting ? 'Processing...' : 'Confirm Split Payment'}
+                                {submitting ? <><Loader2 className="animate-spin" size={18} /> Processing...</> : 'Confirm Split Payment'}
                             </button>
                             <button className="clear-btn" onClick={() => setShowSplitModal(false)}>Cancel</button>
                         </div>

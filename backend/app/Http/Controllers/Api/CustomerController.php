@@ -8,8 +8,12 @@ use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->get('paginate')) {
+            $perPage = min($request->get('per_page', 50), 100);
+            return response()->json(Customer::orderBy('name')->paginate($perPage));
+        }
         return response()->json(Customer::orderBy('name')->get());
     }
 
@@ -56,8 +60,9 @@ class CustomerController extends Controller
     public function search(Request $request)
     {
         $query = $request->get('q');
-        $customers = Customer::where('name', 'like', "%{$query}%")
-            ->orWhere('phone', 'like', "%{$query}%")
+        $searchTerm = "%{$query}%";
+        $customers = Customer::where('name', 'like', $searchTerm)
+            ->orWhere('phone', 'like', $searchTerm)
             ->get();
         return response()->json($customers);
     }
