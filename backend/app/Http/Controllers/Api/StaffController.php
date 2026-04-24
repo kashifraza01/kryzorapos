@@ -30,7 +30,7 @@ class StaffController extends Controller
         $user = User::create([
             'name' => $validated['name'],
             'email' => $email,
-            'password' => $validated['password'],
+            'password' => Hash::make($validated['password']),
             'role_id' => $validated['role_id'],
             'phone' => $validated['phone'],
         ]);
@@ -51,7 +51,7 @@ class StaffController extends Controller
         ]);
 
         if (!empty($validated['password'])) {
-            // No Hash::make — User model 'hashed' cast auto-hashes
+            $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);
         }
