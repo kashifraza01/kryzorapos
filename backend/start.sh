@@ -59,7 +59,8 @@ if [ -z "$APP_KEY" ]; then
     fi
 fi
 
-# Cache routes and views (NOT config — config must read env vars dynamically on Railway)
+# Clear stale caches, then re-cache routes and views
+php artisan route:clear 2>/dev/null || true
 php artisan route:cache 2>/dev/null || true
 php artisan view:cache 2>/dev/null || true
 

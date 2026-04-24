@@ -59,7 +59,7 @@ class Order extends Model
 
     public function rider()
     {
-        return $this->belongsTo(User::class, 'rider_id');
+        return $this->belongsTo(Rider::class, 'rider_id');
     }
 
     public function customer()

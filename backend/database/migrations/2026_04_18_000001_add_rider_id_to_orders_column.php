@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('orders', function (Blueprint $table) {
             if (!Schema::hasColumn('orders', 'rider_id')) {
-                $table->foreignId('rider_id')->nullable()->after('waiter_id')->constrained('users');
+                $table->foreignId('rider_id')->nullable()->after('waiter_id')->constrained('riders');
             }
         });
     }

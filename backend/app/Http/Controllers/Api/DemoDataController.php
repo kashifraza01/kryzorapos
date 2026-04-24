@@ -16,7 +16,8 @@ class DemoDataController extends Controller
             Artisan::call('db:seed', ['--class' => 'Database\Seeders\DatabaseDemoSeeder']);
             return response()->json(['message' => 'Sample data seeded successfully!']);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            \Log::error('DemoData seed error: ' . $e->getMessage());
+            return response()->json(['error' => 'Server Error'], 500);
         }
     }
 
@@ -26,7 +27,8 @@ class DemoDataController extends Controller
             Artisan::call('migrate:fresh', ['--seed' => true, '--seeder' => 'Database\Seeders\DatabaseDemoSeeder']);
             return response()->json(['message' => 'Database reset with sample data!']);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            \Log::error('DemoData fresh error: ' . $e->getMessage());
+            return response()->json(['error' => 'Server Error'], 500);
         }
     }
 }

@@ -43,6 +43,7 @@ class POSController extends Controller
             'table_id'        => 'nullable|exists:restaurant_tables,id',
             'customer_id'     => 'nullable|exists:customers,id',
             'waiter_id'       => 'nullable|exists:users,id',
+            'rider_id'        => 'nullable|exists:riders,id',
             'order_type'      => 'required|in:dine-in,takeaway,delivery',
             'items'           => 'required|array|min:1',
             'items.*.id'      => 'required|exists:menu_items,id',
@@ -81,6 +82,7 @@ class POSController extends Controller
                         'customer_id'     => $validated['customer_id'] ?? null,
                         'table_id'        => $validated['table_id'] ?? null,
                         'waiter_id'       => $validated['waiter_id'] ?? null,
+                        'rider_id'        => $validated['rider_id'] ?? null,
                         'order_type'      => $validated['order_type'],
                         'subtotal'        => $validated['subtotal'],
                         'tax_amount'      => $validated['tax'],
@@ -103,6 +105,7 @@ class POSController extends Controller
                         'customer_id'     => $validated['customer_id'] ?? null,
                         'table_id'        => $validated['table_id'] ?? null,
                         'waiter_id'       => $validated['waiter_id'] ?? null,
+                        'rider_id'        => $validated['rider_id'] ?? null,
                         'order_type'      => $validated['order_type'],
                         'status'          => 'pending',
                         'payment_status'  => 'unpaid',
@@ -157,7 +160,7 @@ class POSController extends Controller
                     RestaurantTable::where('id', $validated['table_id'])->update(['status' => 'occupied']);
                 }
 
-                return response()->json($order->load('items.menu_item', 'user', 'waiter'), 201);
+                return response()->json($order->load('items.menu_item', 'user', 'waiter', 'customer', 'table'), 201);
             });
         } catch (\Exception $e) {
             \Log::error('POS storeOrder error: ' . $e->getMessage());
@@ -248,7 +251,7 @@ class POSController extends Controller
                 return response()->json([
                     'message'        => 'Payment processed successfully',
                     'split_payments' => count($payments) > 1,
-                    'order'          => $order->fresh()->load('items.menu_item', 'customer', 'payments'),
+                    'order'          => $order->fresh()->load('items.menu_item', 'user', 'waiter', 'customer', 'table', 'payments'),
                 ]);
             });
         } catch (\Exception $e) {
