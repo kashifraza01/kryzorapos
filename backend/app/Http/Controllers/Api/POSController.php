@@ -163,8 +163,8 @@ class POSController extends Controller
                 return response()->json($order->load('items.menu_item', 'user', 'waiter', 'customer', 'table'), 201);
             });
         } catch (\Exception $e) {
-            \Log::error('POS storeOrder error: ' . $e->getMessage());
-            return response()->json(['error' => 'Server Error'], 500);
+            \Log::error('POS storeOrder error: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
+            return response()->json(['error' => 'Server Error', 'debug' => $e->getMessage(), 'file' => $e->getFile() . ':' . $e->getLine()], 500);
         }
     }
 
