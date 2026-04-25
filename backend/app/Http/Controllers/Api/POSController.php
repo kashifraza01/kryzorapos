@@ -58,8 +58,12 @@ class POSController extends Controller
         ]);
 
         try {
-            // Fix for Neon PostgreSQL pooler: stale connections may have aborted transactions
-            DB::reconnect();
+            // Fix for Neon PostgreSQL pooler: ensure clean connection before transaction
+            try {
+                DB::select('SELECT 1');
+            } catch (\Exception $connErr) {
+                DB::reconnect();
+            }
 
             return DB::transaction(function () use ($validated) {
                 if (isset($validated['id'])) {
@@ -167,7 +171,7 @@ class POSController extends Controller
             });
         } catch (\Exception $e) {
             \Log::error('POS storeOrder error: ' . $e->getMessage());
-            return response()->json(['error' => 'Server Error'], 500);
+            return response()->json(['error' => 'Server Error', '_debug' => $e->getMessage()], 500);
         }
     }
 
@@ -218,8 +222,12 @@ class POSController extends Controller
         }
 
         try {
-            // Fix for Neon PostgreSQL pooler: stale connections may have aborted transactions
-            DB::reconnect();
+            // Fix for Neon PostgreSQL pooler: ensure clean connection before transaction
+            try {
+                DB::select('SELECT 1');
+            } catch (\Exception $connErr) {
+                DB::reconnect();
+            }
 
             return DB::transaction(function () use ($payments, $order) {
                 // Get active shift for linking
@@ -291,8 +299,12 @@ class POSController extends Controller
         ]);
 
         try {
-            // Fix for Neon PostgreSQL pooler: stale connections may have aborted transactions
-            DB::reconnect();
+            // Fix for Neon PostgreSQL pooler: ensure clean connection before transaction
+            try {
+                DB::select('SELECT 1');
+            } catch (\Exception $connErr) {
+                DB::reconnect();
+            }
 
             return DB::transaction(function () use ($validated, $orderId) {
                 $order = Order::with('items.menu_item.ingredients.inventory', 'payments')->findOrFail($orderId);
