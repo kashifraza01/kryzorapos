@@ -66,6 +66,9 @@ class POSController extends Controller
             }
 
             return DB::transaction(function () use ($validated) {
+                // Check if rider_id column exists (may not on older DBs)
+                $hasRiderCol = \Schema::hasColumn('orders', 'rider_id');
+
                 if (isset($validated['id'])) {
                     $order = Order::with('items.menu_item.ingredients.inventory')->findOrFail($validated['id']);
                     
@@ -85,11 +88,10 @@ class POSController extends Controller
                     $order->items()->delete();
                     
                     // Update Order (preserve original shift_id)
-                    $order->update([
+                    $updateData = [
                         'customer_id'     => $validated['customer_id'] ?? null,
                         'table_id'        => $validated['table_id'] ?? null,
                         'waiter_id'       => $validated['waiter_id'] ?? null,
-                        'rider_id'        => $validated['rider_id'] ?? null,
                         'order_type'      => $validated['order_type'],
                         'subtotal'        => $validated['subtotal'],
                         'tax_amount'      => $validated['tax'],
@@ -98,7 +100,11 @@ class POSController extends Controller
                         'total_amount'    => $validated['total'],
                         'delivery_address'=> $validated['delivery_address'] ?? null,
                         'shift_id'        => $order->shift_id,
-                    ]);
+                    ];
+                    if ($hasRiderCol) {
+                        $updateData['rider_id'] = $validated['rider_id'] ?? null;
+                    }
+                    $order->update($updateData);
                 } else {
                     // Link to active shift if one is open
                     $activeShift = Shift::where('user_id', auth()->id())
@@ -106,13 +112,12 @@ class POSController extends Controller
                         ->latest()
                         ->first();
 
-                    $order = Order::create([
+                    $createData = [
                         'user_id'         => auth()->id(),
                         'shift_id'        => $activeShift?->id,
                         'customer_id'     => $validated['customer_id'] ?? null,
                         'table_id'        => $validated['table_id'] ?? null,
                         'waiter_id'       => $validated['waiter_id'] ?? null,
-                        'rider_id'        => $validated['rider_id'] ?? null,
                         'order_type'      => $validated['order_type'],
                         'status'          => 'pending',
                         'payment_status'  => 'unpaid',
@@ -122,7 +127,11 @@ class POSController extends Controller
                         'delivery_charge' => $validated['delivery_charge'] ?? 0,
                         'total_amount'    => $validated['total'],
                         'delivery_address'=> $validated['delivery_address'] ?? null,
-                    ]);
+                    ];
+                    if ($hasRiderCol) {
+                        $createData['rider_id'] = $validated['rider_id'] ?? null;
+                    }
+                    $order = Order::create($createData);
                 }
 
                 foreach ($validated['items'] as $itemData) {
