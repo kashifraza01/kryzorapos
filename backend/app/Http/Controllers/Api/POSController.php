@@ -58,6 +58,9 @@ class POSController extends Controller
         ]);
 
         try {
+            // Fix for Neon PostgreSQL pooler: stale connections may have aborted transactions
+            DB::reconnect();
+
             return DB::transaction(function () use ($validated) {
                 if (isset($validated['id'])) {
                     $order = Order::with('items.menu_item.ingredients.inventory')->findOrFail($validated['id']);
@@ -163,8 +166,8 @@ class POSController extends Controller
                 return response()->json($order->load('items.menu_item', 'user', 'waiter', 'customer', 'table'), 201);
             });
         } catch (\Exception $e) {
-            \Log::error('POS storeOrder error: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
-            return response()->json(['error' => 'Server Error', 'debug' => $e->getMessage(), 'file' => $e->getFile() . ':' . $e->getLine()], 500);
+            \Log::error('POS storeOrder error: ' . $e->getMessage());
+            return response()->json(['error' => 'Server Error'], 500);
         }
     }
 
@@ -215,6 +218,9 @@ class POSController extends Controller
         }
 
         try {
+            // Fix for Neon PostgreSQL pooler: stale connections may have aborted transactions
+            DB::reconnect();
+
             return DB::transaction(function () use ($payments, $order) {
                 // Get active shift for linking
                 $activeShift = Shift::where('user_id', auth()->id())
@@ -285,6 +291,9 @@ class POSController extends Controller
         ]);
 
         try {
+            // Fix for Neon PostgreSQL pooler: stale connections may have aborted transactions
+            DB::reconnect();
+
             return DB::transaction(function () use ($validated, $orderId) {
                 $order = Order::with('items.menu_item.ingredients.inventory', 'payments')->findOrFail($orderId);
                 
