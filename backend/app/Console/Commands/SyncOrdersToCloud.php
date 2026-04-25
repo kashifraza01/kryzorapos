@@ -17,7 +17,7 @@ class SyncOrdersToCloud extends Command
 
     public function handle()
     {
-        $orders = Order::where('is_synced', false)
+        $orders = Order::whereRaw('is_synced = false')
             ->with(['items.menu_item', 'customer', 'user'])
             ->limit(50)
             ->get();

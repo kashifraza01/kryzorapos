@@ -18,14 +18,14 @@ class MenuController extends Controller
 
     public function categories()
     {
-        $categories = MenuCategory::where('is_active', true)->get();
+        $categories = MenuCategory::whereRaw('is_active = true')->get();
         return response()->json($categories);
     }
 
     public function itemsByCategory($categoryId)
     {
         $items = MenuItem::where('category_id', $categoryId)
-            ->where('is_available', true)
+            ->whereRaw('is_available = true')
             ->get();
         return response()->json($items);
     }
