@@ -171,7 +171,7 @@ class POSController extends Controller
             });
         } catch (\Exception $e) {
             \Log::error('POS storeOrder error: ' . $e->getMessage());
-            return response()->json(['error' => 'Server Error', '_debug' => $e->getMessage()], 500);
+            return response()->json(['error' => 'Server Error'], 500);
         }
     }
 
